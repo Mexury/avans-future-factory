@@ -16,7 +16,8 @@ class UserSeeder extends Seeder
     {
         foreach (UserRole::values() as $role) {
             User::factory()->create([
-                'name' => $role,
+                'name' => fake()->name(),
+                'role' => $role,
                 'email' => $role . '@futurefactory.com',
                 'password' => bcrypt('password')
             ]);

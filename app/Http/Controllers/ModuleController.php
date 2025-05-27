@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Module;
+use App\Models\Modules\ChassisModule;
+use App\Models\Modules\EngineModule;
+use App\Models\Modules\SeatingModule;
+use App\Models\Modules\SteeringWheelModule;
+use App\Models\Modules\WheelSetModule;
 use Illuminate\Http\Request;
 
 class ModuleController extends Controller
@@ -12,7 +17,15 @@ class ModuleController extends Controller
      */
     public function index()
     {
-        //
+        $modules = Module::with([
+            'chassisModule',
+            'engineModule',
+            'seatingModule',
+            'steeringWheelModule',
+            'wheelSetModule'
+        ])->get();
+
+        return view('modules.index', compact('modules'));
     }
 
     /**

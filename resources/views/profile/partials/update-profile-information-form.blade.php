@@ -23,6 +23,8 @@
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
+        <p class="text-white">Role: {{ $user->role }}</p>
+
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
@@ -48,7 +50,7 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-button>{{ __('Save') }}</x-button>
 
             @if (session('status') === 'profile-updated')
                 <p

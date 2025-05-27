@@ -4,6 +4,7 @@ use App\EngineType;
 use App\Models\Module;
 use App\Models\Modules\ChassisModule;
 use App\Models\Modules\WheelSetModule;
+use App\ModuleType;
 use App\SteeringWheelShape;
 use App\UpholsteryType;
 use App\VehicleType;
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->decimal('cost', 10, 2);
             $table->string('name');
             $table->string('image');
+            $table->enum('type', ModuleType::values());
             $table->timestamps();
             $table->softDeletes();
         });
@@ -79,10 +81,9 @@ return new class extends Migration
         });
 
         Schema::create('compatible_wheel_set_modules', function (Blueprint $table) {
-            $table->id();
             $table->foreignIdFor(ChassisModule::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(WheelSetModule::class)->constrained()->cascadeOnDelete();
-            $table->timestamps();
+            $table->primary(['chassis_module_id', 'wheel_set_module_id']);
         });
     }
 

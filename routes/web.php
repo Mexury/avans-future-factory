@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -17,11 +19,40 @@ Route::view('/assembly', 'assembly')
     ->name('assembly');
 
 /** Planning view */
-Route::view('/planning', 'planning')
+Route::get('/calendar/{year?}/{month?}', [CalendarController::class, 'index'])
+    ->where([
+        'year' => '[0-9]{4}',
+        'month' => '[0-9]{1,2}'
+    ])
     ->middleware(['auth', 'role:admin,planner'])
-    ->name('planning');
+    ->name('calendar.index');
 
+/** Planning view */
+Route::get('/calendar/{year}/{month}/{day}', [CalendarController::class, 'show'])
+    ->where([
+        'year' => '[0-9]{4}',
+        'month' => '[0-9]{1,2}',
+        'day' => '[0-9]{1,2}'
+    ])
+    ->middleware(['auth', 'role:admin,planner'])
+    ->name('calendar.show');
 
+Route::get('/calendar/{year}/{month}/{day}/create', [CalendarController::class, 'create'])
+    ->where([
+        'year' => '[0-9]{4}',
+        'month' => '[0-9]{1,2}',
+        'day' => '[0-9]{1,2}'
+    ])
+    ->middleware(['auth', 'role:admin,planner'])
+    ->name('calendar.create');
+
+/** Module resource */
+Route::resource('modules', ModuleController::class)
+    ->middleware(['auth', 'role:admin,planner']);
+
+/** Vehicle resource */
+Route::resource('vehicles', VehicleController::class)
+    ->middleware(['auth', 'role:admin,mechanic']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

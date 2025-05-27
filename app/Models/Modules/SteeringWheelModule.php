@@ -4,18 +4,23 @@ namespace App\Models\Modules;
 
 use App\IsModule;
 use App\Models\Module;
+use App\SteeringWheelShape;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *
+ * 
  *
  * @property int $id
+ * @property int $module_id
+ * @property string $special_adjustments
+ * @property SteeringWheelShape $shape
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Modules\ChassisModule|null $chassisModule
  * @property-read \App\Models\Modules\EngineModule|null $engineModule
- * @property-read Module|null $module
+ * @property-read Module $module
  * @property-read \App\Models\Modules\SeatingModule|null $seatingModule
  * @property-read SteeringWheelModule|null $steeringWheelModule
  * @property-read \App\Models\Modules\WheelSetModule|null $wheelSetModule
@@ -24,7 +29,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereModuleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereShape($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereSpecialAdjustments($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SteeringWheelModule withoutTrashed()
@@ -46,5 +55,9 @@ class SteeringWheelModule extends Module
 
         parent::__construct($attributes);
     }
+
+    protected $casts = [
+        'shape' => SteeringWheelShape::class,
+    ];
 
 }
