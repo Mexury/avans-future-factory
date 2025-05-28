@@ -1,5 +1,78 @@
 <?php
+<?php
 
+namespace App\Models;
+
+use App\ModuleType;
+use App\Models\Modules\ChassisModule;
+use App\Models\Modules\EngineModule;
+use App\Models\Modules\SeatingModule;
+use App\Models\Modules\SteeringWheelModule;
+use App\Models\Modules\WheelSetModule;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * Module model representing a component that can be used to build a vehicle
+ */
+class Module extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'assembly_time',
+        'cost',
+        'image',
+        'type'
+    ];
+
+    protected $casts = [
+        'type' => ModuleType::class,
+    ];
+
+    /**
+     * Get the chassis module associated with this module.
+     */
+    public function chassisModule(): HasOne
+    {
+        return $this->hasOne(ChassisModule::class);
+    }
+
+    /**
+     * Get the engine module associated with this module.
+     */
+    public function engineModule(): HasOne
+    {
+        return $this->hasOne(EngineModule::class);
+    }
+
+    /**
+     * Get the wheel set module associated with this module.
+     */
+    public function wheelSetModule(): HasOne
+    {
+        return $this->hasOne(WheelSetModule::class);
+    }
+
+    /**
+     * Get the steering wheel module associated with this module.
+     */
+    public function steeringWheelModule(): HasOne
+    {
+        return $this->hasOne(SteeringWheelModule::class);
+    }
+
+    /**
+     * Get the seating module associated with this module.
+     */
+    public function seatingModule(): HasOne
+    {
+        return $this->hasOne(SeatingModule::class);
+    }
+}
 namespace App\Models;
 
 use App\Models\Modules\ChassisModule;

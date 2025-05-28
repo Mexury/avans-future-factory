@@ -1,5 +1,38 @@
 <?php
+<?php
 
+namespace App\Models\Modules;
+
+use App\IsModule;
+use App\Models\Module;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * SeatingModule represents vehicle seating components
+ */
+class SeatingModule extends Module
+{
+    use IsModule, HasFactory, SoftDeletes;
+
+    // Override table name manually for inherited Eloquent model
+    protected $table = 'seating_modules';
+
+    public function __construct(array $attributes = [])
+    {
+        $this->mergeFillable([
+            'quantity',
+            'upholstery'
+        ]);
+
+        parent::__construct($attributes);
+    }
+
+    protected $casts = [
+        'quantity' => 'integer',
+        'upholstery' => 'string',
+    ];
+}
 namespace App\Models\Modules;
 
 use App\IsModule;
@@ -9,7 +42,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $module_id

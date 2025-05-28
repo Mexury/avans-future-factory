@@ -1,5 +1,44 @@
 <?php
+<?php
 
+namespace App\Models\Modules;
+
+use App\IsModule;
+use App\Models\Module;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * WheelSetModule represents a set of wheels for a vehicle
+ */
+class WheelSetModule extends Module
+{
+    use IsModule, HasFactory, SoftDeletes;
+
+    // Override table name manually for inherited Eloquent model
+    protected $table = 'wheel_set_modules';
+
+    public function __construct(array $attributes = [])
+    {
+        $this->mergeFillable([
+            'type',
+            'diameter',
+            'wheel_quantity'
+        ]);
+
+        parent::__construct($attributes);
+    }
+
+    public function compatibleChassisModules(): BelongsToMany {
+        return $this->belongsToMany(ChassisModule::class, 'compatible_wheel_set_modules');
+    }
+
+    protected $casts = [
+        'diameter' => 'integer',
+        'wheel_quantity' => 'integer',
+    ];
+}
 namespace App\Models\Modules;
 
 use App\IsModule;
@@ -11,7 +50,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $module_id

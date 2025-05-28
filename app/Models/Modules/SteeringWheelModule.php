@@ -1,5 +1,38 @@
 <?php
+<?php
 
+namespace App\Models\Modules;
+
+use App\IsModule;
+use App\Models\Module;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * SteeringWheelModule represents a vehicle steering wheel component
+ */
+class SteeringWheelModule extends Module
+{
+    use IsModule, HasFactory, SoftDeletes;
+
+    // Override table name manually for inherited Eloquent model
+    protected $table = 'steering_wheel_modules';
+
+    public function __construct(array $attributes = [])
+    {
+        $this->mergeFillable([
+            'special_adaptations',
+            'shape'
+        ]);
+
+        parent::__construct($attributes);
+    }
+
+    protected $casts = [
+        'special_adaptations' => 'string',
+        'shape' => 'string',
+    ];
+}
 namespace App\Models\Modules;
 
 use App\IsModule;

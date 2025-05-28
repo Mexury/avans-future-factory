@@ -1,5 +1,61 @@
 <?php
+<?php
 
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/**
+ * RobotSchedule model representing a time slot assigned to a robot
+ */
+class RobotSchedule extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'robot_id',
+        'date',
+        'time_slot'
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+    ];
+
+    /**
+     * Get the robot that owns the schedule.
+     */
+    public function robot(): BelongsTo
+    {
+        return $this->belongsTo(Robot::class);
+    }
+
+    /**
+     * Get the vehicle plannings for this schedule.
+     */
+    public function vehiclePlannings(): HasMany
+    {
+        return $this->hasMany(VehiclePlanning::class);
+    }
+
+    /**
+     * Format the time slot as a readable time range.
+     */
+    public function getTimeRangeAttribute()
+    {
+        $timeRanges = [
+            1 => '08:00 - 10:00',
+            2 => '10:00 - 12:00',
+            3 => '12:00 - 14:00',
+            4 => '14:00 - 16:00',
+        ];
+
+        return $timeRanges[$this->time_slot] ?? 'Unknown time slot';
+    }
+}
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;

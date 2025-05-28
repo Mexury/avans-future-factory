@@ -2,51 +2,65 @@
 
 namespace App\Models;
 
-use App\VehicleType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- *
- *
- * @property int $id
- * @property int $user_id
- * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VehiclePlanning> $planning
- * @property-read int|null $planning_count
- * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereUserId($value)
- * @mixin \Eloquent
+ * Vehicle model representing a composed vehicle that can be scheduled for production
  */
 class Vehicle extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
-        'user_id',
         'name',
-        'type'
+        'user_id'
     ];
 
-    public function user(): BelongsTo {
+    /**
+     * Get the user that owns the vehicle.
+     */
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function planning(): HasMany
+    /**
+     * Get the compositions for the vehicle.
+     */
+    public function compositions(): HasMany
+    {
+        return $this->hasMany(VehicleComposition::class);
+    }
+
+    /**
+     * Get the plannings for the vehicle.
+     */
+    public function plannings(): HasMany
     {
         return $this->hasMany(VehiclePlanning::class);
     }
 
-    protected $casts = [
-        'type' => VehicleType::class,
-    ];
+    /**
+     * Get total assembly time for all modules in this vehicle.
+     */
+    public function getTotalAssemblyTimeAttribute()
+    {
+        return $this->compositions()
+            ->join('modules', 'vehicle_compositions.module_id', '=', 'modules.id')
+            ->sum('modules.assembly_time');
+    }
+
+    /**
+     * Get total cost for all modules in this vehicle.
+     */
+    public function getTotalCostAttribute()
+    {
+        return $this->compositions()
+            ->join('modules', 'vehicle_compositions.module_id', '=', 'modules.id')
+            ->sum('modules.cost');
+    }
 }

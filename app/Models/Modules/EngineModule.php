@@ -1,5 +1,37 @@
 <?php
+<?php
 
+namespace App\Models\Modules;
+
+use App\IsModule;
+use App\Models\Module;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+/**
+ * EngineModule represents a vehicle engine component
+ */
+class EngineModule extends Module
+{
+    use IsModule, HasFactory, SoftDeletes;
+
+    // Override table name manually for inherited Eloquent model
+    protected $table = 'engine_modules';
+
+    public function __construct(array $attributes = [])
+    {
+        $this->mergeFillable([
+            'type',
+            'power'
+        ]);
+
+        parent::__construct($attributes);
+    }
+
+    protected $casts = [
+        'power' => 'integer',
+    ];
+}
 namespace App\Models\Modules;
 
 use App\EngineType;
@@ -9,7 +41,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $module_id

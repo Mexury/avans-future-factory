@@ -14,3 +14,17 @@ trait IsModule
         return $this->belongsTo(Module::class);
     }
 }
+<?php
+
+namespace App;
+
+use App\Models\Module;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+trait IsModule
+{
+    public function module(): BelongsTo
+    {
+        return $this->belongsTo(Module::class);
+    }
+}
