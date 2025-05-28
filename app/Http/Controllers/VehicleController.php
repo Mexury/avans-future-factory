@@ -74,6 +74,16 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        //
+//        // Check if the $vehicle is used in any planning
+//        if ($robot->planning()->exists()) {
+//            return redirect()->route('robots.index')
+//                ->with('error', "Could not delete robot '{$robot->name}'. It is used in vehicle planning.");
+//        }
+
+        $vehicleName = $vehicle->name;
+        $vehicle->delete();
+
+        return redirect()->route('vehicles.index')
+            ->with('success', "Vehicle '{$vehicleName}' was deleted successfully.");
     }
 }

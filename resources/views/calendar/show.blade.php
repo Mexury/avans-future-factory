@@ -11,16 +11,38 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     {{ $year }}, {{ $month }}, {{ $day }}
 
-                    <div class="flex flex-col gap-2">
-                        @forelse($robotSchedules as $schedule)
-                            <div class="flex flex-col gap-1 bg-gray-700 p-4 py-3 rounded-md">
-                                <p>Robot ID: {{ $schedule->robot_id }}</p>
-                                <p>Date: {{ $schedule->date }}</p>
-                                <p>Slot: {{ $schedule->slot }}</p>
-                            </div>
+                    <x-table>
+                        <x-slot:thead>
+                            <x-table.head>#</x-table.head>
+                            <x-table.head>Robot</x-table.head>
+                            <x-table.head>Vehicle</x-table.head>
+                            <x-table.head>Module</x-table.head>
+                            <x-table.head>Slots</x-table.head>
+                            <x-table.head>Date</x-table.head>
+                        </x-slot:thead>
+                        @forelse($vehiclePlanning as $schedule)
+                            <x-table.row>
+                                <x-table.data>{{ $schedule->id }}</x-table.data>
+                                <x-table.data>{{ $schedule->robot->name }}</x-table.data>
+                                <x-table.data>{{ $schedule->vehicle->name }}</x-table.data>
+                                <x-table.data>{{ $schedule->module->name }}</x-table.data>
+                                <x-table.data>{{ $schedule->slot_start }} - {{ $schedule->slot_end }}</x-table.data>
+                                <x-table.data>{{ $schedule->date }}</x-table.data>
+                            </x-table.row>
                         @empty
-                            <p>Planning is empty</p>
+                            <x-table.row>
+                                <x-table.data>Empty table</x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                            </x-table.row>
                         @endforelse
+                    </x-table>
+
+                    <div class="flex mt-4">
+                        <x-link variant="primary" class="ml-auto" href="{{ route('calendar.create', [$year, $month, $day]) }}">New schedule</x-link>
                     </div>
                 </div>
             </div>

@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\ModuleType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $robot_schedule_id
@@ -30,16 +31,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class VehiclePlanning extends Model
 {
     protected $table = 'vehicle_planning';
+
     protected $fillable = [
-        'robot_schedule_id',
         'vehicle_id',
         'module_id',
-        'module_type'
+        'robot_id',
+        'date',
+        'slot_start',
+        'slot_end',
+        'force_completed'
     ];
-
-    public function robotSchedule(): BelongsTo {
-        return $this->belongsTo(RobotSchedule::class);
-    }
 
     public function vehicle(): BelongsTo {
         return $this->belongsTo(Vehicle::class);
@@ -49,7 +50,14 @@ class VehiclePlanning extends Model
         return $this->belongsTo(Module::class);
     }
 
-    protected $casts = [
-        'module_type' => ModuleType::class,
-    ];
+    public function robot(): BelongsTo {
+        return $this->belongsTo(Robot::class);
+    }
+
+    public function isCompleted(): bool {
+            $scheduledEndTime = Carbon::parse($this->date)
+                ->setHour(9 + ($this->slot_end * 2));
+
+            return $this->force_completed || now()->greaterThan($scheduledEndTime);
+    }
 }

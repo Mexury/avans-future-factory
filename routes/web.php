@@ -3,6 +3,7 @@
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\RobotController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,12 +47,25 @@ Route::get('/calendar/{year}/{month}/{day}/create', [CalendarController::class, 
     ->middleware(['auth', 'role:admin,planner'])
     ->name('calendar.create');
 
+Route::post('/calendar/{year}/{month}/{day}', [CalendarController::class, 'store'])
+    ->where([
+        'year' => '[0-9]{4}',
+        'month' => '[0-9]{1,2}',
+        'day' => '[0-9]{1,2}'
+    ])
+    ->middleware(['auth', 'role:admin,planner'])
+    ->name('calendar.store');
+
 /** Module resource */
 Route::resource('modules', ModuleController::class)
     ->middleware(['auth', 'role:admin,planner']);
 
 /** Vehicle resource */
 Route::resource('vehicles', VehicleController::class)
+    ->middleware(['auth', 'role:admin,mechanic']);
+
+/** Robots resource */
+Route::resource('robots', RobotController::class)
     ->middleware(['auth', 'role:admin,mechanic']);
 
 Route::middleware('auth')->group(function () {

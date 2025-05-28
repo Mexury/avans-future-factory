@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
+ *
  *
  * @property int $robot_id
  * @property VehicleType $vehicle_type
@@ -21,6 +21,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class RobotVehicleType extends Model
 {
+    /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
     protected $fillable = [
         'robot_id',
         'vehicle_type'

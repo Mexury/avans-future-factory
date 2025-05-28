@@ -10,9 +10,44 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    <form action="/" method="POST" class="flex flex-col">
+                    <form action="{{ route('calendar.store', [$year, $month, $day]) }}" method="POST" class="flex flex-col">
+                        @csrf
+                        <h2 class="text-xl font-bold mb-2">Select a module</h2>
+                        <div class="flex flex-col gap-2 mb-6">
+                            <select name="module_id" id="module_id" class="grow p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent">
+                                @foreach($modules as $key => $module)
+                                    <option value="{{ $module->id }}" @selected(old('module_id') === $module->id || $key === 0)>
+                                        {{ snakeToSentenceCase($module->type->value) }} &rightarrow; {{ $module->name }}
+                                        @switch($module->type->value)
+                                            @case('chassis')
+                                                ({{ $module->chassisModule->wheel_quantity }} wheels)
+                                                ({{ $module->chassisModule->length }}cm &times; {{ $module->chassisModule->width }}cm &times; {{ $module->chassisModule->height }}cm)
+                                                @break
+                                            @case('engine')
+                                                {{ $module->engineModule }}
+                                                @break
+                                            @case('seating')
+                                                {{ $module->seatingModule }}
+                                                @break
+                                            @case('steering_wheel')
+                                                {{ $module->steeringWheelModule }}
+                                                @break
+                                            @case('wheel_set')
+                                                ({{ snakeToSentenceCase($module->wheelSetModule->type->value) }})
+                                                ({{ $module->wheelSetModule->diameter }}")
+                                                ({{ $module->wheelSetModule->wheel_quantity }} wheels)
+                                                @break
+                                        @endswitch()
+                                        ({{ $module->assembly_time }} timeslot{{ $module->assembly_time === 1 ? '' : 's'}})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <p class="text-gray-400 text-sm italic">Please note the timeslots, you will need to enter this exact amount below.</p>
+                            <x-input-error class="mt-1" :messages="$errors->get('module_id')" />
+                        </div>
+
                         <h2 class="text-xl font-bold mb-2">Select a robot</h2>
-                        <div class="flex gap-2 mb-6">
+                        <div class="flex gap-2 mb-4">
                             @foreach($robots as $key => $robot)
                                 <label for="robot_id[{{ $robot['id'] }}]" class="big-radio p-3 px-4 rounded-sm w-1/3 cursor-pointer border border-gray-600 text-gray-600 font-bold has-[input[type=radio]:checked]:bg-gray-600 has-[input[type=radio]:checked]:text-white [&:not(:has(input[type=radio]:checked))]:hover:border-gray-500 [&:not(:has(input[type=radio]:checked))]:hover:text-gray-500">
                                     <input tabindex="0" type="radio" name="robot_id" id="robot_id[{{ $robot['id'] }}]" value="{{ $robot['id'] }}" @checked(old('robot_id') === $robot['id'] || $key === 0)>
@@ -20,16 +55,18 @@
                                 </label>
                             @endforeach
                         </div>
+                        <x-input-error class="mb-4" :messages="$errors->get('robot_id')" />
 
                         <h2 class="text-xl font-bold mb-2">Select a timeslot</h2>
-                        <div class="flex gap-2 mb-6">
+                        <div class="flex gap-2 mb-4">
                             @foreach($slots as $key => $value)
-                                <label for="slot[{{ $key + 1 }}]" class="big-radio p-3 px-4 rounded-sm w-1/4 cursor-pointer border border-gray-600 text-gray-600 font-bold has-[input[type=radio]:checked]:bg-gray-600 has-[input[type=radio]:checked]:text-white [&:not(:has(input[type=radio]:checked))]:hover:border-gray-500 [&:not(:has(input[type=radio]:checked))]:hover:text-gray-500">
-                                    <input tabindex="0" type="radio" name="slot" id="slot[{{ $key + 1 }}]" value="{{ $key + 1 }}" @checked(old('slot') === $key + 1 || $key === 0)>
+                                <label for="slot[{{ $key + 1 }}]" class="big-checkbox p-3 px-4 rounded-sm w-1/4 cursor-pointer border border-gray-600 text-gray-600 font-bold has-[input:checked]:bg-gray-600 has-[input:checked]:text-white [&:not(:has(input:checked))]:hover:border-gray-500 [&:not(:has(input:checked))]:hover:text-gray-500">
+                                    <input tabindex="0" type="checkbox" name="slot[{{ $key + 1 }}]" id="slot[{{ $key + 1 }}]" @checked(old('slot.' . $key + 1) === 'true') value="true">
                                     <label class="pointer-events-none select-none">Slot {{ $key + 1 }} ({{ $value['start_time'] }} - {{ $value['end_time'] }})</label>
                                 </label>
                             @endforeach
                         </div>
+                        <x-input-error class="mb-4" :messages="$errors->get('slot')" />
 
                         <h2 class="text-xl font-bold mb-2">Select a vehicle</h2>
                         <div class="flex gap-2 mb-6">
@@ -40,6 +77,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <x-input-error class="mt-1" :messages="$errors->get('vehicle_id')" />
                         </div>
 
                         <div class="flex gap-2 ml-auto">
@@ -50,10 +88,6 @@
                             <x-button variant="primary">
                                 Create schedule
                             </x-button>
-
-{{--                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-sm px-4 py-2">--}}
-{{--                                Create schedule--}}
-{{--                            </button>--}}
                         </div>
                     </form>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Module;
+use App\Models\Robot;
 use App\Models\RobotSchedule;
 use App\Models\Vehicle;
 use App\ModuleType;
@@ -17,11 +18,15 @@ return new class extends Migration
     {
         Schema::create('vehicle_planning', function (BluePrint $table) {
             $table->id();
-            $table->foreignIdFor(RobotSchedule::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Vehicle::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Robot::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Module::class)->constrained()->cascadeOnDelete();
-            $table->enum('module_type', ModuleType::values());
-            $table->unique(['robot_schedule_id', 'vehicle_id', 'module_id', 'module_type'], 'vehicle_planning_unique');
+            $table->date('date');
+            $table->integer('slot_start');
+            $table->integer('slot_end');
+            $table->boolean('force_completed')->default(false);
+            $table->timestamps();
+            $table->unique(['vehicle_id', 'module_id'], 'vehicle_planning_unique');
         });
     }
 

@@ -14,15 +14,49 @@
     /*&:has(input[type=radio]:checked) {*/
     /*    background: red;*/
     /*}*/
+
     input[type=radio] {
         all: unset;
         appearance: none;
         height: 100%;
         width: 100%;
         pointer-events: none;
-
-        &:checked + * {
-            /*background: red;*/
-        }
     }
 }
+
+/*.big-checkbox {*/
+/*    position: relative;*/
+
+/*    input[type=checkbox] {*/
+/*        all: unset;*/
+/*        position: absolute;*/
+/*        top: 0;*/
+/*        left: 0;*/
+/*        height: 100%;*/
+/*        width: 100%;*/
+/*        outline: inherit;*/
+
+/*        &:checked {*/
+/*            background-color: unset;*/
+/*        }*/
+/*    }*/
+/*}*/
+
+.big-checkbox {
+    position: relative;
+
+    input[type=checkbox] {
+        /*all: unset;*/
+        /*position: absolute;*/
+        /*top: 0;*/
+        /*left: 0;*/
+        /*height: 100%;*/
+        /*width: 100%;*/
+        /*outline: inherit;*/
+
+        /*&:checked {*/
+        /*    background-color: unset;*/
+        /*}*/
+    }
+}
+

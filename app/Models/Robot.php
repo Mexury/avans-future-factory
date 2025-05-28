@@ -14,7 +14,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RobotVehicleType> $vehicleTypes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\RobotEngineType> $engineTypes
  * @property-read int|null $vehicle_types_count
+ * @property-read int|null $engine_types_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Robot newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Robot newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Robot query()
@@ -35,9 +37,14 @@ class Robot extends Model
         return $this->hasMany(RobotVehicleType::class);
     }
 
-    public function schedules()
+    public function engineTypes(): HasMany
     {
-        return $this->hasMany(RobotSchedule::class);
+        return $this->hasMany(RobotEngineType::class);
+    }
+
+    public function planning(): HasMany
+    {
+        return $this->hasMany(VehiclePlanning::class);
     }
 
     public function supports(VehicleType $vehicleType): bool {

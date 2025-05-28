@@ -1,5 +1,6 @@
 <?php
 
+use App\EngineType;
 use App\Models\Robot;
 use App\VehicleType;
 use Illuminate\Database\Migrations\Migration;
@@ -15,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('robots', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->timestamps();
         });
 
@@ -23,6 +24,12 @@ return new class extends Migration
             $table->foreignIdFor(Robot::class)->constrained()->cascadeOnDelete();
             $table->enum('vehicle_type', VehicleType::values());
             $table->primary(['robot_id', 'vehicle_type']);
+        });
+
+        Schema::create('robot_engine_types', function (Blueprint $table) {
+            $table->foreignIdFor(Robot::class)->constrained()->cascadeOnDelete();
+            $table->enum('engine_type', EngineType::values());
+            $table->primary(['robot_id', 'engine_type']);
         });
     }
 
@@ -33,5 +40,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('robots');
         Schema::dropIfExists('robot_vehicle_types');
+        Schema::dropIfExists('robot_engine_types');
     }
 };
