@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\VehiclePlanning;
 use Carbon\CarbonImmutable;
 
 class Calendar
@@ -25,7 +26,18 @@ class Calendar
             ]),
             'year' => $date->year,
             'month' => $date->month,
-            'day' => $date->day
+            'day' => $date->day,
+            'slots' => collect(range(1, 4))->map(function($slotNumber) use ($date) {
+                $plannings = VehiclePlanning::where('date', $date)->get();
+                $isOccupied = $plannings->contains(function($planning) use ($slotNumber) {
+                    return $slotNumber >= $planning->slot_start && $slotNumber <= $planning->slot_end;
+                });
+
+                return [
+                    'number' => $slotNumber,
+                    'isOccupied' => $isOccupied
+                ];
+            })
         ])->chunk(5);
 
         $prevMonth = $startOfMonth->subMonth();

@@ -14,15 +14,19 @@
                             <x-table.head>#</x-table.head>
                             <x-table.head>Name</x-table.head>
                             <x-table.head>Type</x-table.head>
-                            <x-table.head>Created by</x-table.head>
+                            <x-table.head>Ordered by</x-table.head>
+                            <x-table.head>Status</x-table.head>
                             <x-table.head>Actions</x-table.head>
                         </x-slot:thead>
-                        @forelse($vehicles as $vehicle)
+                        @forelse($vehicles as $key => $vehicle)
                             <x-table.row>
-                                <x-table.data>{{ $vehicle->id }}</x-table.data>
+                                <x-table.data>{{ $key + 1}}</x-table.data>
                                 <x-table.data>{{ $vehicle->name }}</x-table.data>
                                 <x-table.data>{{ snakeToSentenceCase($vehicle->type->value) }}</x-table.data>
                                 <x-table.data>{{ $vehicle->user->name }}</x-table.data>
+                                <x-table.data>
+                                    <x-status :status="$vehicle->status()"/>
+                                </x-table.data>
                                 <x-table.data>
                                     <form action="{{ route('vehicles.destroy', [$vehicle]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
@@ -34,6 +38,7 @@
                         @empty
                             <x-table.row>
                                 <x-table.data>Empty table</x-table.data>
+                                <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>

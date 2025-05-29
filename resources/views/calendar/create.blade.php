@@ -19,7 +19,7 @@
                                     <option value="{{ $module->id }}" @selected(old('module_id') === $module->id || $key === 0)>
                                         {{ snakeToSentenceCase($module->type->value) }} &rightarrow; {{ $module->name }}
                                         @switch($module->type->value)
-                                            @case('chassis')
+                                            @case('chassis_modules')
                                                 ({{ $module->chassisModule->wheel_quantity }} wheels)
                                                 ({{ $module->chassisModule->length }}cm &times; {{ $module->chassisModule->width }}cm &times; {{ $module->chassisModule->height }}cm)
                                                 @break
@@ -49,10 +49,14 @@
                         <h2 class="text-xl font-bold mb-2">Select a robot</h2>
                         <div class="flex gap-2 mb-4">
                             @foreach($robots as $key => $robot)
-                                <label for="robot_id[{{ $robot['id'] }}]" class="big-radio p-3 px-4 rounded-sm w-1/3 cursor-pointer border border-gray-600 text-gray-600 font-bold has-[input[type=radio]:checked]:bg-gray-600 has-[input[type=radio]:checked]:text-white [&:not(:has(input[type=radio]:checked))]:hover:border-gray-500 [&:not(:has(input[type=radio]:checked))]:hover:text-gray-500">
-                                    <input tabindex="0" type="radio" name="robot_id" id="robot_id[{{ $robot['id'] }}]" value="{{ $robot['id'] }}" @checked(old('robot_id') === $robot['id'] || $key === 0)>
-                                    <label class="pointer-events-none select-none">{{ $robot['name'] }}</label>
-                                </label>
+                                <x-radio
+                                    class="grow"
+                                    name="robot_id"
+                                    id="robot_id_{{ $robot['id'] }}"
+                                    value="{{ $robot['id'] }}"
+                                    :checked="old('robot_id') == $robot['id']">
+                                    {{ $robot['name'] }}
+                                </x-radio>
                             @endforeach
                         </div>
                         <x-input-error class="mb-4" :messages="$errors->get('robot_id')" />
@@ -60,10 +64,13 @@
                         <h2 class="text-xl font-bold mb-2">Select a timeslot</h2>
                         <div class="flex gap-2 mb-4">
                             @foreach($slots as $key => $value)
-                                <label for="slot[{{ $key + 1 }}]" class="big-checkbox p-3 px-4 rounded-sm w-1/4 cursor-pointer border border-gray-600 text-gray-600 font-bold has-[input:checked]:bg-gray-600 has-[input:checked]:text-white [&:not(:has(input:checked))]:hover:border-gray-500 [&:not(:has(input:checked))]:hover:text-gray-500">
-                                    <input tabindex="0" type="checkbox" name="slot[{{ $key + 1 }}]" id="slot[{{ $key + 1 }}]" @checked(old('slot.' . $key + 1) === 'true') value="true">
-                                    <label class="pointer-events-none select-none">Slot {{ $key + 1 }} ({{ $value['start_time'] }} - {{ $value['end_time'] }})</label>
-                                </label>
+                                <x-checkbox
+                                    class="grow"
+                                    name="slot[{{ $key + 1 }}]"
+                                    id="slot[{{ $key + 1 }}]"
+                                    :checked="old('slot.' . $key + 1) === 'true'">
+                                    Slot {{ $key + 1 }} ({{ $value['start_time'] }} - {{ $value['end_time'] }})
+                                </x-checkbox>
                             @endforeach
                         </div>
                         <x-input-error class="mb-4" :messages="$errors->get('slot')" />

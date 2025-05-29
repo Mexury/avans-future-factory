@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
+ * 
  *
  * @property int $robot_id
- * @property string $engine_type
+ * @property EngineType $engine_type
  * @property-read \App\Models\Robot $robot
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RobotEngineType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RobotEngineType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RobotEngineType query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|RobotEngineType whereRobotId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RobotEngineType whereEngineType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RobotEngineType whereRobotId($value)
  * @mixin \Eloquent
  */
 class RobotEngineType extends Model

@@ -9,18 +9,18 @@
 }
 
 .big-radio {
-    /*position: relative;*/
+    position: relative;
 
     /*&:has(input[type=radio]:checked) {*/
     /*    background: red;*/
     /*}*/
 
     input[type=radio] {
-        all: unset;
-        appearance: none;
-        height: 100%;
-        width: 100%;
-        pointer-events: none;
+        /*all: unset;*/
+        /*appearance: none;*/
+        /*height: 100%;*/
+        /*width: 100%;*/
+        /*pointer-events: none;*/
     }
 }
 

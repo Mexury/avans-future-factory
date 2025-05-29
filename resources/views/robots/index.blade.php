@@ -17,9 +17,9 @@
                             <x-table.head>Compatible engine types</x-table.head>
                             <x-table.head>Actions</x-table.head>
                         </x-slot:thead>
-                        @forelse($robots as $robot)
+                        @forelse($robots as $key => $robot)
                             <x-table.row>
-                                <x-table.data>{{ $robot->id }}</x-table.data>
+                                <x-table.data>{{ $key + 1 }}</x-table.data>
                                 <x-table.data>{{ $robot->name }}</x-table.data>
                                 <x-table.data>
                                     {{

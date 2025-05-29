@@ -8,23 +8,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- *
+ * 
  *
  * @property int $id
- * @property int $robot_schedule_id
  * @property int $vehicle_id
+ * @property int $robot_id
  * @property int $module_id
- * @property ModuleType $module_type
+ * @property \Illuminate\Support\Carbon $date
+ * @property int $slot_start
+ * @property int $slot_end
+ * @property int $force_completed
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Module $module
- * @property-read \App\Models\RobotSchedule $robotSchedule
+ * @property-read \App\Models\Robot $robot
  * @property-read \App\Models\Vehicle $vehicle
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereForceCompleted($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereModuleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereModuleType($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereRobotScheduleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereRobotId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereSlotEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereSlotStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VehiclePlanning whereVehicleId($value)
  * @mixin \Eloquent
  */
@@ -60,4 +70,8 @@ class VehiclePlanning extends Model
 
             return $this->force_completed || now()->greaterThan($scheduledEndTime);
     }
+
+    protected $casts = [
+        'date' => 'datetime',
+    ];
 }

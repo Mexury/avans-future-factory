@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Vehicle;
 use App\VehicleType;
 use Illuminate\Http\Request;
@@ -22,8 +23,9 @@ class VehicleController extends Controller
      */
     public function create()
     {
+        $customers = User::where(['role' => 'customer'])->get();
         $vehicleTypes = VehicleType::values();
-        return view('vehicles.create', compact('vehicleTypes'));
+        return view('vehicles.create', compact('customers', 'vehicleTypes'));
     }
 
     /**
@@ -33,11 +35,12 @@ class VehicleController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|min:4|max:255',
+            'customer_id' => 'required|exists:users,id',
             'type' => 'required|string|in:' . implode(',', VehicleType::values())
         ]);
 
         Vehicle::create([
-            'user_id' => auth()->id(),
+            'user_id' => $validated['customer_id'],
             'name' => $validated['name'],
             'type' => $validated['type']
         ]);

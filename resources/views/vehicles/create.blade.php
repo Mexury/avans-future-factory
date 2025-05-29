@@ -12,18 +12,37 @@
                     <form action="{{ route('vehicles.store') }}" method="POST" class="flex flex-col">
                         @csrf
                         <h1 class="text-2xl font-bold mb-4">Create a new vehicle</h1>
-                        <div class="flex gap-2 mb-6">
-                            <input type="text" name="name" placeholder="Name" class="grow p-3 px-4 rounded-sm bg-transparent border-gray-600" value="{{ old('name') }}">
-                            <select name="type" id="type" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent">
+
+                        <div class="flex flex-col gap-2 mb-4">
+                            <h2 class="text-xl font-bold mt-2">Enter a name</h2>
+                            <input type="text" name="name" placeholder="Name" class="p-3 px-4 rounded-sm bg-transparent border-gray-600" value="{{ old('name') }}">
+                            <x-input-error :messages="$errors->get('name')" />
+                        </div>
+
+                        <div class="flex flex-col gap-2 mb-6">
+                            <h2 class="text-xl font-bold mt-2">Select a vehicle type</h2>
+                            <select name="type" id="type" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent grow">
                                 @foreach($vehicleTypes as $key => $vehicleType)
-                                    <option value="{{ $vehicleType }}" @selected(old('type') === $vehicleType || $key === 0)>
+                                    <option value="{{ $vehicleType }}" @selected(old('type') === $vehicleType)>
                                         {{ snakeToSentenceCase($vehicleType) }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <x-input-error class="mt-1" :messages="$errors->get('name')" />
+                        <div class="flex flex-col gap-2 mb-6">
+                            <h2 class="text-xl font-bold mt-2">Select a customer</h2>
+                            <select name="customer_id" id="customer_id" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent grow">
+                                @foreach($customers as $customer)
+                                    <option value="{{ $customer->id }}" @selected(old('customer_id') === $customer->id)>
+                                        {{ $customer->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <x-input-error class="mt-1" :messages="$errors->get('customer_id')" />
+                        <x-input-error class="mt-1" :messages="$errors->get('vehicle_type')" />
 
                         <div class="flex gap-2 ml-auto">
                             <a href="{{ route('vehicles.index') }}" class="text-white hover:underline font-bold rounded-sm px-4 py-2">

@@ -16,7 +16,8 @@
             @foreach ($days as $day)
                 <x-calendar.day
                     :sameMonth="$day['month'] === $calendar['month']"
-                    :path="$day['path']" :day="$day['day']" />
+                    :path="$day['path']" :day="$day['day']"
+                    :slots="$day['slots']"/>
             @endforeach
         @endforeach
     </div>

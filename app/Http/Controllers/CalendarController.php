@@ -134,7 +134,7 @@ class CalendarController extends Controller
             $moduleType = snakeToSentenceCase($module->type->value);
 
             return back()->withInput()->withErrors([
-                'module_id' => "This vehicle already has a {$moduleType} module ({$module->name}) scheduled for assembly."
+                'module_id' => "This vehicle already has a {$moduleType} module scheduled for assembly."
             ]);
         }
 
@@ -144,7 +144,6 @@ class CalendarController extends Controller
 
         if (!$robot->supports($vehicle->type)) {
             $vehicleType = ucfirst($vehicle->type->value);
-            $robotName = $robot->name;
 
             return back()
                 ->withInput()
@@ -222,7 +221,7 @@ class CalendarController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'robot_id' => "Robot '{$robotName}' is already scheduled for {$conflictSlots} on this date. Please select a different robot or different time slots."
+                    'robot_id' => "This robot is already scheduled for {$conflictSlots} on this date."
                 ]);
         }
 
@@ -252,7 +251,7 @@ class CalendarController extends Controller
                 return back()
                     ->withInput()
                     ->withErrors([
-                        'module_id' => "This vehicle already has a {$moduleType} module ({$module->name}) scheduled for assembly. Each vehicle can only have one of each module type."
+                        'module_id' => "This vehicle already has a {$moduleType} module scheduled for assembly. Each vehicle can only have one of each module type."
                     ]);
             }
 
@@ -299,7 +298,7 @@ class CalendarController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Module $module)
+    public function update(Request $request, VehiclePlanning $schedule)
     {
         //
     }
@@ -307,8 +306,16 @@ class CalendarController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Module $module)
+    public function destroy(VehiclePlanning $schedule)
     {
-        //
+        $date = $schedule->date;
+        $year = $date->year;
+        $month = $date->month;
+        $day = $date->day;
+
+        $schedule->delete();
+
+        return redirect()->route('calendar.show', [$year, $month, $day])
+            ->with('success', "Schedule was deleted successfully.");
     }
 }

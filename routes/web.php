@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\Modules\ChassisModuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\RobotController;
@@ -56,9 +57,9 @@ Route::post('/calendar/{year}/{month}/{day}', [CalendarController::class, 'store
     ->middleware(['auth', 'role:admin,planner'])
     ->name('calendar.store');
 
-/** Module resource */
-Route::resource('modules', ModuleController::class)
-    ->middleware(['auth', 'role:admin,planner']);
+Route::delete('/calendar/{schedule}', [CalendarController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin,planner'])
+    ->name('calendar.destroy');
 
 /** Vehicle resource */
 Route::resource('vehicles', VehicleController::class)
@@ -73,4 +74,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::middleware(['auth', 'role:admin,planner'])->group(function () {
+   Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+
+   Route::resource('modules/chassis', ChassisModuleController::class);
+//   Route::resource('/modules/engine', ChassisModuleController::class);
+//   Route::resource('/modules/seating', ChassisModuleController::class);
+//   Route::resource('/modules/steering_wheel', ChassisModuleController::class);
+//   Route::resource('/modules/wheel_set', ChassisModuleController::class);
+});
+
 require __DIR__.'/auth.php';

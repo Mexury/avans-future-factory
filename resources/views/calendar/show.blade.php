@@ -17,21 +17,36 @@
                             <x-table.head>Robot</x-table.head>
                             <x-table.head>Vehicle</x-table.head>
                             <x-table.head>Module</x-table.head>
-                            <x-table.head>Slots</x-table.head>
+                            <x-table.head>Slot</x-table.head>
                             <x-table.head>Date</x-table.head>
+                            <x-table.head>Actions</x-table.head>
                         </x-slot:thead>
-                        @forelse($vehiclePlanning as $schedule)
+                        @forelse($vehiclePlanning as $key => $schedule)
                             <x-table.row>
-                                <x-table.data>{{ $schedule->id }}</x-table.data>
+                                <x-table.data>{{ $key + 1 }}</x-table.data>
                                 <x-table.data>{{ $schedule->robot->name }}</x-table.data>
                                 <x-table.data>{{ $schedule->vehicle->name }}</x-table.data>
                                 <x-table.data>{{ $schedule->module->name }}</x-table.data>
-                                <x-table.data>{{ $schedule->slot_start }} - {{ $schedule->slot_end }}</x-table.data>
+                                <x-table.data>
+                                    @if($schedule->slot_start === $schedule->slot_end)
+                                        {{ $schedule->slot_start }}
+                                    @else
+                                        {{ $schedule->slot_start }} - {{ $schedule->slot_end }}
+                                    @endif
+                                </x-table.data>
                                 <x-table.data>{{ $schedule->date }}</x-table.data>
+                                <x-table.data>
+                                    <form action="{{ route('calendar.destroy', [$schedule]) }}" method="POST" class="flex gap-2 justify-end">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-button variant="danger">Delete</x-button>
+                                    </form>
+                                </x-table.data>
                             </x-table.row>
                         @empty
                             <x-table.row>
                                 <x-table.data>Empty table</x-table.data>
+                                <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
