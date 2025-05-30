@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <form action="{{ route('chassis.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col">
+                    <form action="{{ route('engine.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col">
                         @csrf
                         <h1 class="text-2xl font-bold mb-4">Create a new module</h1>
 
@@ -50,43 +50,27 @@
 
                         <div class="flex gap-2 mt-6">
                             <div class="flex flex-col gap-2 mb-6 grow">
-                                <h2 class="text-xl font-bold mt-2">Select a wheel quantity</h2>
-                                <select name="wheel_quantity" id="wheel_quantity" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent grow">
-                                    @for($i = 1; $i <= 4; $i++)
-                                        <option value="{{ $i * 2 }}" @selected(old('wheel_quantity') === $i)>
-                                            {{ $i * 2 }} wheels
-                                        </option>
-                                    @endfor
-                                </select>
-                                <x-input-error :messages="$errors->get('wheel_quantity')" />
-                            </div>
-                            <div class="flex flex-col gap-2 mb-6 grow">
-                                <h2 class="text-xl font-bold mt-2">Select a vehicle type</h2>
-                                <select name="vehicle_type" id="vehicle_type" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent grow">
-                                    @foreach($vehicleTypes as $vehicleType)
-                                        <option value="{{ $vehicleType }}" @selected(old('vehicle_type') === $vehicleType)>
-                                            {{ snakeToSentenceCase($vehicleType) }}
-                                        </option>
+                                <h2 class="text-xl font-bold mt-2">Select an engine type</h2>
+                                <div class="flex gap-2 mb-4">
+                                    @foreach($engineTypes as $engineType)
+                                        <x-radio
+                                            class="grow"
+                                            name="type"
+                                            id="type_{{ $engineType }}"
+                                            value="{{ $engineType  }}"
+                                            :checked="old('type') == $engineType">
+                                            {{ snakeToSentenceCase($engineType) }}
+                                        </x-radio>
                                     @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('vehicle_type')" />
+                                </div>
+                                <x-input-error :messages="$errors->get('type')" />
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-2 mb-4 grow">
-                            <h2 class="text-xl font-bold mt-2">Enter dimensions</h2>
-                            <div class="flex gap-2 grow">
-                                <div class="flex gap-2 grow items-center">
-                                    <input type="number" min="1" max="1000" step="1" name="length" placeholder="Length (in cm)" class="p-3 px-4 grow rounded-sm bg-transparent border-gray-600" value="{{ old('length') }}">
-                                    <span class="text-3xl px-2 text-gray-500">&times;</span>
-                                    <input type="number" min="1" max="1000" step="1" name="width" placeholder="Width (in cm)" class="p-3 px-4 grow rounded-sm bg-transparent border-gray-600" value="{{ old('width') }}">
-                                    <span class="text-3xl px-2 text-gray-500">&times;</span>
-                                    <input type="number" min="1" max="1000" step="1" name="height" placeholder="Height (in cm)" class="p-3 px-4 grow rounded-sm bg-transparent border-gray-600" value="{{ old('height') }}">
-                                </div>
-                            </div>
-                            <x-input-error class="mb-0 grow" :messages="$errors->get('length')" />
-                            <x-input-error class="mb-0 grow" :messages="$errors->get('width')" />
-                            <x-input-error class="mb-0 grow" :messages="$errors->get('height')" />
+                        <div class="flex flex-col gap-2 mb-4">
+                            <h2 class="text-xl font-bold mt-2">Enter horse power</h2>
+                            <input type="number" name="horse_power" placeholder="Horse power" class="p-3 px-4 rounded-sm bg-transparent border-gray-600" value="{{ old('horse_power') }}">
+                            <x-input-error :messages="$errors->get('horse_power')" />
                         </div>
 
                         <div class="flex gap-2 ml-auto">

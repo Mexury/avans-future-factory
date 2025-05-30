@@ -43,12 +43,12 @@
                                         <label class="pointer-events-none select-none">{{ ucfirst($engineType) }}</label>
                                     </label>
                                 @endforeach
-                                    <x-checkbox
-                                        name="engine_type[{{ $engineType }}]"
-                                        id="vehicle_type[{{ $engineType }}]"
-                                        :checked="old('engine_type.' . $engineType) === 'true'">
-                                        {{ snakeToSentenceCase($engineType) }}
-                                    </x-checkbox>
+                                <x-checkbox
+                                    name="engine_type[{{ $engineType }}]"
+                                    id="vehicle_type[{{ $engineType }}]"
+                                    :checked="old('engine_type.' . $engineType) === 'true'">
+                                    {{ snakeToSentenceCase($engineType) }}
+                                </x-checkbox>
                             </div>
                             <x-input-error :messages="$errors->get('engine_type')" />
                             <x-input-error :messages="$errors->get('selection_error')" />

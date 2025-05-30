@@ -8,6 +8,7 @@ use App\Models\Modules\EngineModule;
 use App\Models\Modules\SeatingModule;
 use App\Models\Modules\SteeringWheelModule;
 use App\Models\Modules\WheelSetModule;
+use App\ModuleType;
 use Illuminate\Http\Request;
 
 class ModuleController extends Controller
@@ -25,7 +26,9 @@ class ModuleController extends Controller
             'wheelSetModule'
         ])->get();
 
-        return view('modules.index', compact('modules'));
+        $moduleTypes = ModuleType::values();
+
+        return view('modules.index', compact('modules', 'moduleTypes'));
     }
 
     /**
@@ -33,7 +36,7 @@ class ModuleController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
@@ -41,7 +44,7 @@ class ModuleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -49,7 +52,7 @@ class ModuleController extends Controller
      */
     public function show(Module $module)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -57,7 +60,7 @@ class ModuleController extends Controller
      */
     public function edit(Module $module)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -65,7 +68,7 @@ class ModuleController extends Controller
      */
     public function update(Request $request, Module $module)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -73,6 +76,15 @@ class ModuleController extends Controller
      */
     public function destroy(Module $module)
     {
-        //
+        $moduleName = $module->name;
+        $module->chassisModule?->delete();
+        $module->engineModule?->delete();
+        $module->seatingModule?->delete();
+        $module->steeringWheelModule?->delete();
+        $module->wheelSetModule?->delete();
+        $module->delete();
+
+        return redirect()->route('modules.index')
+            ->with('success', "Module '{$moduleName}' was deleted successfully.");
     }
 }

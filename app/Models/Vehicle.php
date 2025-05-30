@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\VehicleStatusType;
 use App\VehicleType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Support\VehicleStatus;
 
 /**
  *
@@ -32,7 +30,6 @@ use App\Support\VehicleStatus;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Vehicle whereUserId($value)
- * @method static VehicleStatus status()
  * @mixin \Eloquent
  */
 class Vehicle extends Model
@@ -52,24 +49,27 @@ class Vehicle extends Model
         return $this->hasMany(VehiclePlanning::class);
     }
 
-    public function status(): VehicleStatus {
+    public function status(): string {
         $plannings = $this->planning;
-
+        
+        // If there are no plannings, return "Idle"
         if ($plannings->isEmpty()) {
-            return new VehicleStatus(VehicleStatusType::DANGER, 'Awaiting assembly');
+            return "Idle";
         }
-
+        
         $completedCount = $plannings->filter(function ($planning) {
             return $planning->isCompleted();
         })->count();
-
+        
         $totalCount = $plannings->count();
-
+        
+        // If all plannings are completed, return "Completed"
         if ($completedCount === $totalCount) {
-            return new VehicleStatus(VehicleStatusType::SUCCESS, 'Completed');
+            return "Completed";
         }
-
-        return new VehicleStatus(VehicleStatusType::WARNING, 'In progress ' . $completedCount . '/' . $totalCount);
+        
+        // If some plannings are completed, return "Assembly, x/y"
+        return "Assembly, {$completedCount}/{$totalCount}";
     }
 
     protected $casts = [

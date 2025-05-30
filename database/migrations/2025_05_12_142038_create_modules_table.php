@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('assembly_time');
             $table->decimal('cost', 10, 2);
             $table->string('name');
-            $table->string('image');
+            $table->string('image')->default('placeholder.jpg');
             $table->enum('type', ModuleType::values());
             $table->timestamps();
             $table->softDeletes();

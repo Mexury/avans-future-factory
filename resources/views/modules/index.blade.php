@@ -9,46 +9,56 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <table class="w-full text-sm text-left trl:text-right text-gray-500 dark:text-gray-400 table-auto">
-                        <thead class="text-xs text-gray-700 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <td class="px-6 py-3">Image</td>
-                                <td class="px-6 py-3">Type</td>
-                                <td class="px-6 py-3">Name</td>
-                                <td class="px-6 py-3">Assembly Time</td>
-                                <td class="px-6 py-3">Assembly Cost</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($modules as $module)
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800">
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4">
-                                        <img src="{{ $module->image }}" alt="Image">
-                                    </td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4">
-                                        {{ snakeToSentenceCase($module->type->value) }}
-                                    </td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4">
-                                        {{ $module->name }}
-                                    </td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4">
-                                        {{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }}
-                                    </td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4">
-                                        {{ $module->cost }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800">
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4">No modules found...</td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4"></td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4"></td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4"></td>
-                                    <td class="border-b dark:border-gray-700 border-gray-200 px-6 py-4"></td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <x-table>
+                        <x-slot:thead>
+                            <x-table.head>#</x-table.head>
+                            <x-table.head>Image</x-table.head>
+                            <x-table.head>Type</x-table.head>
+                            <x-table.head>Module</x-table.head>
+                            <x-table.head>Assembly time</x-table.head>
+                            <x-table.head>Assembly cost</x-table.head>
+                            <x-table.head>Actions</x-table.head>
+                        </x-slot:thead>
+                        @forelse($modules as $key => $module)
+                            <x-table.row>
+                                <x-table.data>{{ $key + 1 }}</x-table.data>
+                                <x-table.data>
+                                    <img class="h-24 w-24 object-fit rounded-sm border border-gray-600" src="/storage/{{ $module->image }}" alt="{{ $module->name }}">
+                                </x-table.data>
+                                <x-table.data>{{ snakeToSentenceCase($module->type->value) }}</x-table.data>
+                                <x-table.data>{{ $module->name }}</x-table.data>
+                                <x-table.data>
+                                    {{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }}
+                                </x-table.data>
+                                <x-table.data>{{ $module->cost }}</x-table.data>
+                                <x-table.data>
+                                    <form action="{{ route('modules.destroy', [$module]) }}" method="POST" class="flex gap-2 justify-end">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-button variant="danger">
+                                            <x-tabler-trash />
+                                        </x-button>
+                                    </form>
+                                </x-table.data>
+                            </x-table.row>
+                        @empty
+                            <x-table.row>
+                                <x-table.data>Empty table</x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
+                            </x-table.row>
+                        @endforelse
+                    </x-table>
+
+                    <div class="flex mt-4 gap-2 justify-end">
+                        @foreach($moduleTypes as $moduleType)
+                            <x-link variant="primary" href="{{ route($moduleType . '.create') }}">New {{ snakeToSentenceCase($moduleType) }}</x-link>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>

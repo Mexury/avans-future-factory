@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\Modules\ChassisModuleController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\RobotController;
 use App\Http\Controllers\VehicleController;
+use App\ModuleType;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -76,9 +76,11 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin,planner'])->group(function () {
-   Route::get('/modules', [ModuleController::class, 'index'])->name('modules.index');
+   Route::resource('modules', ModuleController::class);
 
-   Route::resource('modules/chassis', ChassisModuleController::class);
+   foreach (ModuleType::values() as $moduleType) {
+       Route::resource('modules/' . $moduleType, 'App\Http\Controllers\Modules\\' . snakeToPascalCase($moduleType) . 'ModuleController');
+   }
 //   Route::resource('/modules/engine', ChassisModuleController::class);
 //   Route::resource('/modules/seating', ChassisModuleController::class);
 //   Route::resource('/modules/steering_wheel', ChassisModuleController::class);

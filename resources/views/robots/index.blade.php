@@ -41,7 +41,9 @@
                                     <form action="{{ route('robots.destroy', [$robot]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
                                         @method('DELETE')
-                                        <x-button variant="danger">Delete</x-button>
+                                        <x-button variant="danger">
+                                            <x-tabler-trash />
+                                        </x-button>
                                     </form>
                                 </x-table.data>
                             </x-table.row>

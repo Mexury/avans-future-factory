@@ -64,6 +64,8 @@ return [
     | is set to "UTC" by default as it is suitable for most use cases.
     |
     */
+            BladeUI\Icons\BladeIconsServiceProvider::class,
+            SecondNetwork\TablerIcons\BladeTablerIconsServiceProvider::class,
 
     'timezone' => 'UTC',
 
