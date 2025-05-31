@@ -6,12 +6,13 @@ use App\IsModule;
 use App\Models\Module;
 use App\ModuleType;
 use App\WheelType;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $module_id
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Modules\ChassisModule|null $chassisModule
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Modules\ChassisModule> $compatibleChassisModules
+ * @property-read Collection<int, \App\Models\Modules\ChassisModule> $compatibleChassisModules
  * @property-read int|null $compatible_chassis_modules_count
  * @property-read \App\Models\Modules\EngineModule|null $engineModule
  * @property-read Module $module
@@ -58,14 +59,16 @@ class WheelSetModule extends Module
         $this->mergeFillable([
             'type',
             'diameter',
-            'wheel_quantity',
-            'applicable_chassis'
+            'wheel_quantity'
         ]);
 
         parent::__construct($attributes);
     }
-    public function compatibleChassisModules(): BelongsToMany {
-        return $this->belongsToMany(ChassisModule::class, 'compatible_wheel_set_modules');
+
+    // Get all chassis modules with the wheel quantity as this module
+    public function compatibleChassisModules(): Collection
+    {
+        return ChassisModule::where(['wheel_quantity' => $this->wheel_quantity])->get();
     }
 
     protected $casts = [

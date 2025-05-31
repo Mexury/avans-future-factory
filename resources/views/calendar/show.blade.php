@@ -9,8 +9,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ $year }}, {{ $month }}, {{ $day }}
-
                     <x-table>
                         <x-slot:thead>
                             <x-table.head>#</x-table.head>
@@ -39,9 +37,7 @@
                                     <form action="{{ route('calendar.destroy', [$schedule]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
                                         @method('DELETE')
-                                        <x-button variant="danger">
-                                            <x-tabler-trash />
-                                        </x-button>
+                                        <x-button variant="actions:delete" />
                                     </form>
                                 </x-table.data>
                             </x-table.row>

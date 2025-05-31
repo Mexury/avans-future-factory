@@ -5,6 +5,7 @@ namespace App\Models\Modules;
 use App\IsModule;
 use App\Models\Module;
 use App\VehicleType;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $module_id
@@ -25,7 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read ChassisModule|null $chassisModule
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Modules\WheelSetModule> $compatibleWheelSetModules
+ * @property-read Collection<int, \App\Models\Modules\WheelSetModule> $compatibleWheelSetModules
  * @property-read int|null $compatible_wheel_set_modules_count
  * @property-read \App\Models\Modules\EngineModule|null $engineModule
  * @property-read Module $module
@@ -71,8 +72,10 @@ class ChassisModule extends Module
         parent::__construct($attributes);
     }
 
-    public function compatibleWheelSetModules(): BelongsToMany {
-        return $this->belongsToMany(WheelSetModule::class, 'compatible_wheel_set_modules');
+    // Get all wheel set modules with the wheel quantity as this module
+    public function compatibleWheelSetModules(): Collection
+    {
+        return WheelSetModule::where(['wheel_quantity' => $this->wheel_quantity])->get();
     }
 
     protected $casts = [

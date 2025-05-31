@@ -65,39 +65,4 @@ class ChassisModuleController extends Controller
         return redirect()->route('modules.index')
             ->with('success', 'Module created successfully.');
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Module $module)
-    {
-        if ($module->type !== ModuleType::CHASSIS) {
-            return redirect()->route('modules.index')
-                ->with('error', 'Invalid module type.');
-        }
-
-        try {
-            // Delete the associated chassis module using the relationship
-            if ($module->chassisModule) {
-                $module->chassisModule->delete();
-            }
-
-            // Delete the image if it exists
-            if ($module->image) {
-                Storage::disk('public')->delete($module->image);
-            }
-
-            // Delete the base module
-            $module->delete();
-
-            return redirect()->route('modules.index')
-                ->with('success', 'Chassis module deleted successfully.');
-
-        } catch (\Exception $e) {
-            \Log::error('Failed to delete chassis module: ' . $e->getMessage());
-
-            return redirect()->route('modules.index')
-                ->with('error', 'Failed to delete chassis module. Please try again.');
-        }
-    }
 }

@@ -12,7 +12,7 @@
                     <x-table>
                         <x-slot:thead>
                             <x-table.head>#</x-table.head>
-                            <x-table.head>Robot</x-table.head>
+                            <x-table.head>Name</x-table.head>
                             <x-table.head>Compatible vehicle types</x-table.head>
                             <x-table.head>Compatible engine types</x-table.head>
                             <x-table.head>Actions</x-table.head>
@@ -41,9 +41,7 @@
                                     <form action="{{ route('robots.destroy', [$robot]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
                                         @method('DELETE')
-                                        <x-button variant="danger">
-                                            <x-tabler-trash />
-                                        </x-button>
+                                        <x-button variant="actions:delete" />
                                     </form>
                                 </x-table.data>
                             </x-table.row>

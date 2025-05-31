@@ -1,14 +1,14 @@
 @props([
     'name' => 'image',
-    'label' => 'Upload File',
-    'accept' => 'image/*',
-    'errorMessages' => null
+    'label' => 'Upload file',
+    'accept' => 'image/*'
 ])
 
-<div class="flex flex-col gap-3 mb-4 grow" x-data="{ fileName: 'No file chosen', previewUrl: null }">
-    <h2 class="text-xl font-bold mt-2">{{ $label }}</h2>
+<div class="flex flex-col gap-3 grow" x-data="{ fileName: 'No file chosen', previewUrl: null }">
+    <h2 class="text-xl font-bold mt-2">
+        {{ $label }}<span class="text-red-500">*</span>
+    </h2>
 
-    <!-- Image Preview Box -->
     <div class="border border-gray-600 rounded-sm p-4 flex items-center justify-center bg-gray-800/30 h-48">
         <template x-if="previewUrl">
             <img :src="previewUrl" class="max-h-40 max-w-full rounded-sm object-contain" alt="Preview">
@@ -23,7 +23,6 @@
         </template>
     </div>
 
-    <!-- File Input -->
     <div class="relative">
         <label for="{{ $name }}-upload" class="flex items-center justify-between p-3 px-4 rounded-sm bg-transparent border border-gray-600 text-gray-300 cursor-pointer hover:border-gray-500">
             <span x-text="fileName"></span>
@@ -35,6 +34,7 @@
             name="{{ $name }}"
             class="hidden"
             accept="{{ $accept }}"
+            required
             @change="
                 fileName = $event.target.files.length ? $event.target.files[0].name : 'No file chosen';
                 if($event.target.files.length) {
@@ -49,8 +49,4 @@
             "
         >
     </div>
-
-    @if($errorMessages)
-        <x-input-error :messages="$errorMessages" />
-    @endif
 </div>

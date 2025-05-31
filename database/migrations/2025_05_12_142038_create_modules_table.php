@@ -80,11 +80,11 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        Schema::create('compatible_wheel_set_modules', function (Blueprint $table) {
-            $table->foreignIdFor(ChassisModule::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(WheelSetModule::class)->constrained()->cascadeOnDelete();
-            $table->primary(['chassis_module_id', 'wheel_set_module_id']);
-        });
+//        Schema::create('compatible_wheel_set_modules', function (Blueprint $table) {
+//            $table->foreignIdFor(ChassisModule::class)->constrained()->cascadeOnDelete();
+//            $table->foreignIdFor(WheelSetModule::class)->constrained()->cascadeOnDelete();
+//            $table->primary(['chassis_module_id', 'wheel_set_module_id']);
+//        });
     }
 
     /**
@@ -98,6 +98,6 @@ return new class extends Migration
         Schema::dropIfExists('wheel_set_modules');
         Schema::dropIfExists('steering_wheel_modules');
         Schema::dropIfExists('seating_modules');
-        Schema::dropIfExists('compatible_wheel_set_modules');
+//        Schema::dropIfExists('compatible_wheel_set_modules');
     }
 };

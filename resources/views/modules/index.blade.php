@@ -13,8 +13,8 @@
                         <x-slot:thead>
                             <x-table.head>#</x-table.head>
                             <x-table.head>Image</x-table.head>
+                            <x-table.head>Name</x-table.head>
                             <x-table.head>Type</x-table.head>
-                            <x-table.head>Module</x-table.head>
                             <x-table.head>Assembly time</x-table.head>
                             <x-table.head>Assembly cost</x-table.head>
                             <x-table.head>Actions</x-table.head>
@@ -25,8 +25,8 @@
                                 <x-table.data>
                                     <img class="h-24 w-24 object-fit rounded-sm border border-gray-600" src="/storage/{{ $module->image }}" alt="{{ $module->name }}">
                                 </x-table.data>
-                                <x-table.data>{{ snakeToSentenceCase($module->type->value) }}</x-table.data>
                                 <x-table.data>{{ $module->name }}</x-table.data>
+                                <x-table.data>{{ snakeToSentenceCase($module->type->value) }}</x-table.data>
                                 <x-table.data>
                                     {{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }}
                                 </x-table.data>
@@ -35,9 +35,7 @@
                                     <form action="{{ route('modules.destroy', [$module]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
                                         @method('DELETE')
-                                        <x-button variant="danger">
-                                            <x-tabler-trash />
-                                        </x-button>
+                                        <x-button variant="actions:delete" />
                                     </form>
                                 </x-table.data>
                             </x-table.row>

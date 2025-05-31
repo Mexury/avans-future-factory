@@ -25,4 +25,12 @@
             {{ $slot }}
         </button>
         @break
+
+
+
+    @case('actions:delete')
+        <button {{ $attributes->merge(['type' => 'submit', 'class' => 'font-bold inline-flex items-center p-1.5 bg-red-600 border border-transparent rounded-sm text-white hover:bg-red-500 focus:bg-red-500 active:bg-red-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150']) }}>
+            <x-tabler-trash />
+        </button>
+        @break
 @endswitch

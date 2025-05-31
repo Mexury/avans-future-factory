@@ -48,7 +48,5 @@ class ModuleSeeder extends Seeder
             'diameter' => 15,
             'wheel_quantity' => 4
         ]);
-
-        $chassisModule->compatibleWheelSetModules()->attach($wheelSetModule->id);
     }
 }

@@ -17,7 +17,7 @@
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('modules.index')" :active="request()->routeIs('modules.index')">
+                    <x-nav-link :href="route('modules.index')" :active="request()->routeIs(['modules.*','chassis.*','engine.*','seating.*','steering_wheel.*','wheel_set.*'])">
                         {{ __('Modules') }}
                     </x-nav-link>
                 </div>

@@ -58,12 +58,4 @@ class EngineModuleController extends Controller
         return redirect()->route('modules.index')
             ->with('success', 'Module created successfully.');
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Module $module)
-    {
-       //
-    }
 }

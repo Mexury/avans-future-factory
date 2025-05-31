@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Module;
 use App\Models\Modules\ChassisModule;
 use App\ModuleType;
+use App\SteeringWheelShape;
 use App\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,10 @@ class SteeringWheelModuleController extends Controller
      */
     public function create()
     {
-        //
+        $steeringWheelShapes = SteeringWheelShape::values();
+        return view('modules.steering_wheel.create', compact(
+            'steeringWheelShapes'
+        ));
     }
 
     /**

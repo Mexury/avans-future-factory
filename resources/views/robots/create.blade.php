@@ -38,17 +38,13 @@
                             <h2 class="text-xl font-bold mt-2">Select supported engine types</h2>
                             <div class="grid grid-cols-4 gap-3">
                                 @foreach($engineTypes as $engineType)
-                                    <label for="engine_type[{{ $engineType }}]" class="big-checkbox flex items-center gap-2 p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-gray-600 font-bold has-[input:checked]:bg-gray-600 has-[input:checked]:text-white [&:not(:has(input:checked))]:hover:border-gray-500 [&:not(:has(input:checked))]:hover:text-gray-500">
-                                        <input tabindex="0" type="checkbox" name="engine_type[{{ $engineType }}]" id="engine_type[{{ $engineType }}]" @checked(old('engine_type.' . $engineType) === 'true') value="true">
-                                        <label class="pointer-events-none select-none">{{ ucfirst($engineType) }}</label>
-                                    </label>
+                                    <x-checkbox
+                                        name="engine_type[{{ $engineType }}]"
+                                        id="vehicle_type[{{ $engineType }}]"
+                                        :checked="old('engine_type.' . $engineType) === 'true'">
+                                        {{ snakeToSentenceCase($engineType) }}
+                                    </x-checkbox>
                                 @endforeach
-                                <x-checkbox
-                                    name="engine_type[{{ $engineType }}]"
-                                    id="vehicle_type[{{ $engineType }}]"
-                                    :checked="old('engine_type.' . $engineType) === 'true'">
-                                    {{ snakeToSentenceCase($engineType) }}
-                                </x-checkbox>
                             </div>
                             <x-input-error :messages="$errors->get('engine_type')" />
                             <x-input-error :messages="$errors->get('selection_error')" />
