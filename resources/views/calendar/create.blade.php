@@ -17,28 +17,34 @@
                             <select name="module_id" id="module_id" class="grow p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent">
                                 @foreach($modules as $key => $module)
                                     <option value="{{ $module->id }}" @selected(old('module_id') === $module->id || $key === 0)>
-                                        {{ snakeToSentenceCase($module->type->value) }} &rightarrow; {{ $module->name }}
+                                        {{ $module->name }} [{{ snakeToSentenceCase($module->type->value) }}, {{ $module->assembly_time }} {{ $module->assembly_time === 1 ? 'timeslot' : 'timeslots'}}]
                                         @switch($module->type->value)
-                                            @case('chassis_modules')
+                                            @case('chassis')
                                                 ({{ $module->chassisModule->wheel_quantity }} wheels)
                                                 ({{ $module->chassisModule->length }}cm &times; {{ $module->chassisModule->width }}cm &times; {{ $module->chassisModule->height }}cm)
                                                 @break
                                             @case('engine')
-                                                {{ $module->engineModule }}
+                                                ({{ strtolower(snakeToSentenceCase($module->engineModule->type->value)) }})
+                                                ({{ $module->engineModule->horse_power }} horse power)
                                                 @break
                                             @case('seating')
-                                                {{ $module->seatingModule }}
+                                                ({{ $module->seatingModule->quantity }} {{ $module->seatingModule->quantity === 1 ? 'seat' : 'seats' }})
+                                                ({{ strtolower(snakeToSentenceCase($module->seatingModule->upholstery->value)) }})
                                                 @break
                                             @case('steering_wheel')
-                                                {{ $module->steeringWheelModule }}
+                                                ({{ strtolower(snakeToSentenceCase($module->steeringWheelModule->shape->value)) }})
+                                                @if(strlen(($module->steeringWheelModule->special_adjustments ?? '')) === 0)
+                                                    (no special adjustments)
+                                                @else
+                                                    ({{ $module->steeringWheelModule->special_adjustments }})
+                                                @endif
                                                 @break
                                             @case('wheel_set')
                                                 ({{ snakeToSentenceCase($module->wheelSetModule->type->value) }})
                                                 ({{ $module->wheelSetModule->diameter }}")
                                                 ({{ $module->wheelSetModule->wheel_quantity }} wheels)
                                                 @break
-                                        @endswitch()
-                                        ({{ $module->assembly_time }} timeslot{{ $module->assembly_time === 1 ? '' : 's'}})
+                                        @endswitch
                                     </option>
                                 @endforeach
                             </select>

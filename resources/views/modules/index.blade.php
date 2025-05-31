@@ -28,9 +28,9 @@
                                 <x-table.data>{{ $module->name }}</x-table.data>
                                 <x-table.data>{{ snakeToSentenceCase($module->type->value) }}</x-table.data>
                                 <x-table.data>
-                                    {{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }}
+                                    {{ $module->assembly_time * 2 }}h ({{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }})
                                 </x-table.data>
-                                <x-table.data>{{ $module->cost }}</x-table.data>
+                                <x-table.data>&euro;{{ $module->cost }}</x-table.data>
                                 <x-table.data>
                                     <form action="{{ route('modules.destroy', [$module]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
@@ -54,7 +54,10 @@
 
                     <div class="flex mt-4 gap-2 justify-end">
                         @foreach($moduleTypes as $moduleType)
-                            <x-link variant="primary" href="{{ route($moduleType . '.create') }}">New {{ snakeToSentenceCase($moduleType) }}</x-link>
+                            <x-link variant="primary" class="flex gap-2 text-sm grow" href="{{ route($moduleType . '.create') }}">
+                                <x-tabler-plus class="h-4 w-4"/>
+                                {{ strtolower(snakeToSentenceCase($moduleType)) }} module
+                            </x-link>
                         @endforeach
                     </div>
                 </div>

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Support\VehicleStatus;
+use App\VehicleStatusType;
 use App\VehicleType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
@@ -49,27 +51,27 @@ class Vehicle extends Model
         return $this->hasMany(VehiclePlanning::class);
     }
 
-    public function status(): string {
+    public function status(): VehicleStatus {
         $plannings = $this->planning;
-        
+
         // If there are no plannings, return "Idle"
         if ($plannings->isEmpty()) {
-            return "Idle";
+            return new VehicleStatus(VehicleStatusType::DANGER,  'Awaiting assembly');
         }
-        
+
         $completedCount = $plannings->filter(function ($planning) {
             return $planning->isCompleted();
         })->count();
-        
+
         $totalCount = $plannings->count();
-        
+
         // If all plannings are completed, return "Completed"
         if ($completedCount === $totalCount) {
-            return "Completed";
+            return new VehicleStatus(VehicleStatusType::SUCCESS, 'Completed');
         }
-        
+
         // If some plannings are completed, return "Assembly, x/y"
-        return "Assembly, {$completedCount}/{$totalCount}";
+        return new VehicleStatus(VehicleStatusType::WARNING, "Assembly, {$completedCount}/{$totalCount}");
     }
 
     protected $casts = [

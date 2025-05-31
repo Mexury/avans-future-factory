@@ -10,11 +10,13 @@ use App\Models\Modules\WheelSetModule;
 use App\ModuleType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property int $assembly_time
@@ -78,6 +80,10 @@ class Module extends Model
 
     public function wheelSetModule(): HasOne {
         return $this->hasOne(WheelSetModule::class);
+    }
+
+    public function planning(): HasMany {
+        return $this->hasMany(VehiclePlanning::class);
     }
 
     protected $casts = [

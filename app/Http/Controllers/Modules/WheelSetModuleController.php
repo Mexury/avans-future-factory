@@ -29,14 +29,37 @@ class WheelSetModuleController extends Controller
      */
     public function store(Request $request)
     {
-       //
-    }
+        $validated = $request->validate([
+            'assembly_time' => 'nullable|integer|min:1|max:4',
+            'name' => 'required|string|max:255',
+            'cost' => 'required|numeric|min:0|max:100000',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Module $module)
-    {
-       //
+            'type' => 'required|string|in:' . implode(',', WheelType::values()),
+            'diameter' => 'required|integer|min:1|max:100',
+            'wheel_quantity' => 'required|integer|min:2'
+        ]);
+
+        $module = Module::create([
+            'name' => $validated['name'],
+            'type' => ModuleType::WHEEL_SET,
+            'cost' => $validated['cost'],
+            'assembly_time' => $validated['assembly_time']
+        ]);
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('modules/wheel_set', 'public');
+            $module->image = $imagePath;
+            $module->save();
+        }
+
+        $module->wheelSetModule()->create([
+            'type' => $validated['type'],
+            'diameter' => $validated['diameter'],
+            'wheel_quantity' => $validated['wheel_quantity']
+        ]);
+
+        return redirect()->route('modules.index')
+            ->with('success', 'Module created successfully.');
     }
 }

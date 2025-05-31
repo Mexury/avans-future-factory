@@ -12,6 +12,7 @@ use App\Models\Robot;
 use App\Models\RobotSchedule;
 use App\Models\Vehicle;
 use App\Models\VehiclePlanning;
+use App\ModuleType;
 use App\Support\Calendar;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -136,6 +137,75 @@ class CalendarController extends Controller
             return back()->withInput()->withErrors([
                 'module_id' => "This vehicle already has a {$moduleType} module scheduled for assembly."
             ]);
+        }
+
+        // Load the module with its type-specific data
+        $module = Module::with([
+            'chassisModule',
+            'engineModule',
+            'seatingModule',
+            'steeringWheelModule',
+            'wheelSetModule'
+        ])->findOrFail($validated['module_id']);
+
+        // Get existing modules for this vehicle
+        $existingPlannings = VehiclePlanning::where('vehicle_id', $validated['vehicle_id'])
+            ->with(['module.chassisModule', 'module.engineModule', 'module.seatingModule',
+                   'module.steeringWheelModule', 'module.wheelSetModule'])
+            ->get();
+
+        // Define the required module order
+        $moduleOrder = [
+            ModuleType::CHASSIS,
+            ModuleType::ENGINE,
+            ModuleType::WHEEL_SET,
+            ModuleType::STEERING_WHEEL,
+            ModuleType::SEATING
+        ];
+
+        // Get the current module's position in the order
+        $currentModuleIndex = array_search($module->type, $moduleOrder);
+
+        // Check if all required previous modules exist
+        for ($i = 0; $i < $currentModuleIndex; $i++) {
+            $requiredType = $moduleOrder[$i];
+            $hasRequiredModule = $existingPlannings->contains(function ($planning) use ($requiredType) {
+                return $planning->module->type === $requiredType;
+            });
+
+            if (!$hasRequiredModule) {
+                $requiredTypeName = snakeToSentenceCase($requiredType->value);
+                $currentTypeName = snakeToSentenceCase($module->type->value);
+
+                return back()->withInput()->withErrors([
+                    'module_id' => "You must add a {$requiredTypeName} module before adding a {$currentTypeName} module."
+                ]);
+            }
+        }
+
+        // If adding a wheel set, check compatibility with the chassis
+        if ($module->type === ModuleType::WHEEL_SET) {
+            // Find the chassis module
+            $chassisPlanning = $existingPlannings->first(function($planning) {
+                return $planning->module->type === ModuleType::CHASSIS;
+            });
+
+            if ($chassisPlanning) {
+                $chassisModule = $chassisPlanning->module->chassisModule;
+                $wheelSetModule = $module->wheelSetModule;
+
+                // Get compatible wheel sets
+                $compatibleWheelSets = $chassisModule->compatibleWheelSetModules();
+
+                // Check if our wheel set is among the compatible ones
+                $isCompatible = $compatibleWheelSets->contains('id', $wheelSetModule->id);
+
+                if (!$isCompatible) {
+                    return back()->withInput()->withErrors([
+                        'module_id' => "This wheel set is not compatible with the existing chassis. The chassis requires wheels with a quantity of {$chassisModule->wheel_quantity}."
+                    ]);
+                }
+            }
         }
 
         // Check if the robot supports the vehicle type

@@ -35,26 +35,26 @@ class SeatingModuleController extends Controller
             'cost' => 'required|numeric|min:0|max:100000',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
 
-            'type' => 'required|string|in:' . implode(',', EngineType::values()),
-            'horse_power' => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1',
+            'upholstery' => 'required|string|in:' . implode(',', UpholsteryType::values()),
         ]);
 
         $module = Module::create([
             'name' => $validated['name'],
-            'type' => ModuleType::ENGINE,
+            'type' => ModuleType::SEATING,
             'cost' => $validated['cost'],
             'assembly_time' => $validated['assembly_time']
         ]);
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('modules/engine', 'public');
+            $imagePath = $request->file('image')->store('modules/seating', 'public');
             $module->image = $imagePath;
             $module->save();
         }
 
-        $module->engineModule()->create([
-            'type' => $validated['type'],
-            'horse_power' => $validated['horse_power']
+        $module->seatingModule()->create([
+            'quantity' => $validated['quantity'],
+            'upholstery' => $validated['upholstery']
         ]);
 
         return redirect()->route('modules.index')
