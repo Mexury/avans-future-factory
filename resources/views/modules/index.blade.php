@@ -1,3 +1,4 @@
+@php use App\UserRole; @endphp
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -28,15 +29,19 @@
                                 <x-table.data>{{ $module->name }}</x-table.data>
                                 <x-table.data>{{ snakeToSentenceCase($module->type->value) }}</x-table.data>
                                 <x-table.data>
-                                    {{ $module->assembly_time * 2 }}h ({{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }})
+                                    {{ $module->assembly_time * 2 }}h
+                                    ({{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }})
                                 </x-table.data>
                                 <x-table.data>&euro;{{ number_format($module->cost, 2) }}</x-table.data>
                                 <x-table.data>
-                                    <form action="{{ route('modules.destroy', [$module]) }}" method="POST" class="flex gap-2 justify-end">
-                                        @csrf
-                                        @method('DELETE')
-                                        <x-button variant="actions:delete" />
-                                    </form>
+                                    @if(userHasRole(UserRole::ADMIN, UserRole::BUYER))
+                                        <form action="{{ route('modules.destroy', [$module]) }}" method="POST"
+                                              class="flex gap-2 justify-end">
+                                            @csrf
+                                            @method('DELETE')
+                                            <x-button variant="actions:delete"/>
+                                        </form>
+                                    @endif
                                 </x-table.data>
                             </x-table.row>
                         @empty
@@ -52,14 +57,17 @@
                         @endforelse
                     </x-table>
 
-                    <div class="flex mt-4 gap-2 justify-end">
-                        @foreach($moduleTypes as $moduleType)
-                            <x-link variant="primary" class="flex gap-2 text-sm grow" href="{{ route($moduleType . '.create') }}">
-                                <x-tabler-plus class="h-4 w-4"/>
-                                {{ strtolower(snakeToSentenceCase($moduleType)) }} module
-                            </x-link>
-                        @endforeach
-                    </div>
+                    @if(userHasRole(UserRole::ADMIN, UserRole::BUYER))
+                        <div class="flex mt-4 gap-2 justify-end">
+                            @foreach($moduleTypes as $moduleType)
+                                <x-link variant="primary" class="flex gap-2 text-sm grow"
+                                        href="{{ route($moduleType . '.create') }}">
+                                    <x-tabler-plus class="h-4 w-4"/>
+                                    {{ strtolower(snakeToSentenceCase($moduleType)) }} module
+                                </x-link>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

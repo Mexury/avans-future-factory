@@ -47,12 +47,17 @@ Route::middleware(['auth', 'role:admin,mechanic'])->group(function () {
     Route::resource('robots', RobotController::class);
 });
 Route::middleware(['auth', 'role:admin,buyer'])->group(function () {
-   Route::resource('modules', ModuleController::class);
-
    foreach (ModuleType::values() as $moduleType) {
        Route::resource('modules/' . $moduleType, 'App\Http\Controllers\Modules\\' . snakeToPascalCase($moduleType) . 'ModuleController');
    }
 });
+
+Route::get('modules', [ModuleController::class, 'index'])
+    ->name('modules.index')
+    ->middleware(['auth', 'role:admin,buyer,planner,mechanic']);
+Route::delete('modules', [ModuleController::class, 'destroy'])
+    ->name('modules.destroy')
+    ->middleware(['auth', 'role:admin,buyer']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])

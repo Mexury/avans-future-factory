@@ -17,7 +17,7 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                @if(userHasRole(UserRole::ADMIN, UserRole::BUYER))
+                @if(userHasRole(UserRole::ADMIN, UserRole::BUYER, UserRole::PLANNER, UserRole::MECHANIC))
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('modules.index')" :active="request()->routeIs(['modules.*','chassis.*','engine.*','seating.*','steering_wheel.*','wheel_set.*'])">
                             {{ __('Modules') }}
@@ -103,7 +103,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard.index')" :active="request()->routeIs('dashboard.index')">
-                {{ __('dashboard.index') }}
+                {{ __('Dashboard') }}
             </x-responsive-nav-link>
         </div>
 

@@ -18,7 +18,7 @@
                             <select name="module_id" id="module_id" class="grow p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent">
                                 @foreach($modules as $key => $module)
                                     <option value="{{ $module->id }}" @selected(old('module_id') === $module->id || $key === 0)>
-                                        {{ $module->name }} [{{ snakeToSentenceCase($module->type->value) }}, {{ $module->assembly_time }} {{ $module->assembly_time === 1 ? 'timeslot' : 'timeslots'}}]
+                                        {{ $module->name }} (&euro;{{ number_format($module->cost, 2) }}) [{{ snakeToSentenceCase($module->type->value) }}, {{ $module->assembly_time }} {{ $module->assembly_time === 1 ? 'timeslot' : 'timeslots'}}]
                                         @switch($module->type->value)
                                             @case('chassis')
                                                 ({{ $module->chassisModule->wheel_quantity }} wheels)

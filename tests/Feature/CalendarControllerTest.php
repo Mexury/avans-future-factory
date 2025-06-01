@@ -98,9 +98,13 @@ test('as admin, calendar.store validates required fields', function () {
     $response->assertSessionHasErrors(['module_id', 'robot_id', 'vehicle_id', 'slot']);
 });
 test('as admin, calendar.store prevents duplicate module for vehicle', function () {
-    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
+    $this->actingAs($this->users['admin']);
+
+    $vehicle = Vehicle::factory()->create([
+        'user_id' => $this->users['admin']->id,
+        'type' => VehicleType::CAR
+    ]);
     $robot = Robot::factory()->create();
-    $robot->vehicleTypes()->attach(VehicleType::CAR);
 
     $module = Module::factory()->create([
         'type' => ModuleType::CHASSIS,
@@ -163,7 +167,7 @@ test('as admin, calendar.store prevents duplicate module for vehicle', function 
 //    $response->assertSessionHasErrors('module_id');
 //    $this->assertEquals(0, VehiclePlanning::count());
 //});
-//
+
 //test('store validates robot compatibility with vehicle type', function () {
 //    // Setup
 //    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
