@@ -47,7 +47,7 @@
                             </x-table.row>
                         @empty
                             <x-table.row>
-                                <x-table.data>Empty table</x-table.data>
+                                <x-table.data>No robots yet.</x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>

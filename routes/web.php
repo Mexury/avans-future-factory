@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
-Route::middleware(['auth', 'role:admin,planner'])->group(function () {
+Route::middleware(['auth', 'role:admin,planner,mechanic'])->group(function () {
     Route::get('/calendar/{year?}/{month?}', [CalendarController::class, 'index'])
         ->where([
             'year' => '[0-9]{4}',

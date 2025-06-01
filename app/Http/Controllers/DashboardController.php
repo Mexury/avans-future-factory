@@ -17,6 +17,17 @@ class DashboardController extends Controller
             'user_id' => auth()->id()
         ])->get();
 
-        return view('dashboard.index', compact('vehicles'));
+        $completedVehicles = Vehicle::with('planning.module')
+            ->get()
+            ->filter(function ($vehicle) {
+                $plannings = $vehicle->planning;
+
+                if ($plannings->count() < 4) return false;
+                $completedCount = $plannings->filter(fn ($planning) => $planning->isCompleted())->count();
+
+                return $completedCount === $plannings->count();
+            });
+
+        return view('dashboard.index', compact('vehicles', 'completedVehicles'));
     }
 }
