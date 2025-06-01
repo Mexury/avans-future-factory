@@ -3,13 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Module;
-use App\Models\Modules\ChassisModule;
-use App\Models\Modules\EngineModule;
-use App\Models\Modules\SeatingModule;
-use App\Models\Modules\SteeringWheelModule;
-use App\Models\Modules\WheelSetModule;
 use App\Models\Robot;
-use App\Models\RobotSchedule;
 use App\Models\Vehicle;
 use App\Models\VehiclePlanning;
 use App\ModuleType;
@@ -25,20 +19,15 @@ class CalendarController extends Controller
     public function index(?string $year = null, ?string $month = null)
     {
         $now = Carbon::now();
-
-        // Assign default values if parameters are missing
         $year = $year ?? $now->year;
         $month = $month ?? $now->month;
 
-        // Validate the month parameter
         if (!is_numeric($month) || $month < 1 || $month > 12) {
             $month = $now->month;
         }
 
-        // Ensure month is two digits
         $month = str_pad($month, 2, '0', STR_PAD_LEFT);
 
-        // If the original URL was missing year or month, redirect to the full URL
         if (is_null(request()->route('year')) || is_null(request()->route('month'))) {
             return redirect()->route('calendar.index', [
                 'year' => $year,
@@ -46,7 +35,6 @@ class CalendarController extends Controller
             ]);
         }
 
-        // Proceed with handling the request
         $calendar = Calendar::buildMonth($year, $month);
         return view('calendar.index', compact('calendar'));
     }
@@ -61,17 +49,19 @@ class CalendarController extends Controller
             abort(404);
         }
 
-        $date = $year . '-' . $month . '-' . $day;
+        $date = "$year-$month-$day";
 
-        $robots = Robot::withCount(['planning as schedules_on_date_count' => function ($query) use ($date) {
-            $query->whereDate('date', $date);
-        }])->get()->map(function ($robot) {
-            return [
-                'id' => $robot->id,
-                'name' => $robot->name,
-                'is_available' => $robot->schedules_on_date_count < 4,
-            ];
-        });
+        $robots = Robot::withCount([
+            'planning as schedules_on_date_count' => function ($query) use ($date) {
+                $query->whereDate('date', $date);
+            }
+        ])
+        ->get()
+        ->map(fn($robot) => [
+            'id' => $robot->id,
+            'name' => $robot->name,
+            'is_available' => $robot->schedules_on_date_count < 4,
+        ]);
 
         $vehicles = Vehicle::all();
 
@@ -110,12 +100,10 @@ class CalendarController extends Controller
      */
     public function store(Request $request, string $year, string $month, string $day)
     {
-        // Validate the date
         if (!checkdate((int)$month, (int)$day, (int)$year)) {
             abort(404);
         }
 
-        // First validate basic fields
         $validated = $request->validate([
             'module_id' => 'required|numeric|exists:modules,id',
             'robot_id' => 'required|numeric|exists:robots,id',
@@ -124,7 +112,6 @@ class CalendarController extends Controller
             'slot.*' => 'string|in:true,false'
         ]);
 
-        // Check if this module is already planned for this vehicle
         $existingPlanning = VehiclePlanning::where([
             'vehicle_id' => $validated['vehicle_id'],
             'module_id' => $validated['module_id']
@@ -135,11 +122,10 @@ class CalendarController extends Controller
             $moduleType = snakeToSentenceCase($module->type->value);
 
             return back()->withInput()->withErrors([
-                'module_id' => "This vehicle already has a {$moduleType} module scheduled for assembly."
+                'module_id' => "This vehicle already has a $moduleType module scheduled for assembly."
             ]);
         }
 
-        // Load the module with its type-specific data
         $module = Module::with([
             'chassisModule',
             'engineModule',
@@ -148,14 +134,17 @@ class CalendarController extends Controller
             'wheelSetModule'
         ])->findOrFail($validated['module_id']);
 
-        // Get existing modules for this vehicle
+        // Get existing modules
         $existingPlannings = VehiclePlanning::where('vehicle_id', $validated['vehicle_id'])
-            ->with(['module.chassisModule', 'module.engineModule', 'module.seatingModule',
-                   'module.steeringWheelModule', 'module.wheelSetModule'])
-            ->get();
+            ->with([
+                'module.chassisModule',
+                'module.engineModule',
+                'module.seatingModule',
+                'module.steeringWheelModule',
+                'module.wheelSetModule'
+            ])->get();
 
-        // Define the required module order
-        $moduleOrder = [
+        $assemblyOrder = [
             ModuleType::CHASSIS,
             ModuleType::ENGINE,
             ModuleType::WHEEL_SET,
@@ -163,12 +152,11 @@ class CalendarController extends Controller
             ModuleType::SEATING
         ];
 
-        // Get the current module's position in the order
-        $currentModuleIndex = array_search($module->type, $moduleOrder);
+        $currentModuleIndex = array_search($module->type, $assemblyOrder);
 
         // Check if all required previous modules exist
         for ($i = 0; $i < $currentModuleIndex; $i++) {
-            $requiredType = $moduleOrder[$i];
+            $requiredType = $assemblyOrder[$i];
             $hasRequiredModule = $existingPlannings->contains(function ($planning) use ($requiredType) {
                 return $planning->module->type === $requiredType;
             });
@@ -178,31 +166,25 @@ class CalendarController extends Controller
                 $currentTypeName = snakeToSentenceCase($module->type->value);
 
                 return back()->withInput()->withErrors([
-                    'module_id' => "You must add a {$requiredTypeName} module before adding a {$currentTypeName} module."
+                    'module_id' => "You must add a $requiredTypeName module before adding a $currentTypeName module."
                 ]);
             }
         }
 
-        // If adding a wheel set, check compatibility with the chassis
+        // When adding a wheel set, check compatibility with the chassis
         if ($module->type === ModuleType::WHEEL_SET) {
-            // Find the chassis module
             $chassisPlanning = $existingPlannings->first(function($planning) {
                 return $planning->module->type === ModuleType::CHASSIS;
             });
 
             if ($chassisPlanning) {
                 $chassisModule = $chassisPlanning->module->chassisModule;
-                $wheelSetModule = $module->wheelSetModule;
-
-                // Get compatible wheel sets
-                $compatibleWheelSets = $chassisModule->compatibleWheelSetModules();
-
-                // Check if our wheel set is among the compatible ones
-                $isCompatible = $compatibleWheelSets->contains('id', $wheelSetModule->id);
+                $isCompatible = $chassisModule->compatibleWheelSetModules()
+                    ->contains('id', $module->wheelSetModule->id);
 
                 if (!$isCompatible) {
                     return back()->withInput()->withErrors([
-                        'module_id' => "This wheel set is not compatible with the existing chassis. The chassis requires wheels with a quantity of {$chassisModule->wheel_quantity}."
+                        'module_id' => "This wheel set is not compatible with the existing chassis. The chassis requires wheels with a quantity of $chassisModule->wheel_quantity."
                     ]);
                 }
             }
@@ -215,119 +197,79 @@ class CalendarController extends Controller
         if (!$robot->supports($vehicle->type)) {
             $vehicleType = ucfirst($vehicle->type->value);
 
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'robot_id' => "This robot does not support vehicles with type '{$vehicleType}'."
-                ]);
+            return back()->withInput()->withErrors([
+                'robot_id' => "This robot does not support vehicles with type '$vehicleType'."
+            ]);
         }
 
-        // Get the module to check its assembly time
+        // Get the module to check the assembly time
         $module = Module::findOrFail($validated['module_id']);
-        $requiredSlots = $module->assembly_time;
+        $assemblyTime = $module->assembly_time;
 
-        // Check which slots were selected (slot numbers are 1-based)
         $selectedSlots = [];
-        foreach ($validated['slot'] as $slotNumber => $isSelected) {
-            if ($isSelected === 'true') {
-                $selectedSlots[] = (int)$slotNumber;
-            }
+        foreach ($validated['slot'] as $slot => $isSelected) {
+            if ($isSelected === 'true') $selectedSlots[] = (int)$slot;
         }
 
-        // Sort slots to ensure they're in order
+        // TODO: is this actually necessary?
+        // Sort slots to make sure they are in the correct order
         sort($selectedSlots);
 
-        // Validate number of selected slots
-        if (count($selectedSlots) !== $requiredSlots) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'slot' => "This module requires exactly {$requiredSlots} time slot(s). You selected " . count($selectedSlots) . "."
-                ]);
+        if (count($selectedSlots) !== $assemblyTime) {
+            return back()->withInput()->withErrors([
+                'slot' => "This module requires exactly $assemblyTime time slot(s). You selected " . count($selectedSlots) . "."
+            ]);
         }
 
-        // Validate that slots are consecutive
         for ($i = 1; $i < count($selectedSlots); $i++) {
             if ($selectedSlots[$i] !== $selectedSlots[$i-1] + 1) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'slot' => "Selected slots must be consecutive."
-                    ]);
+                return back()->withInput()->withErrors([
+                    'slot' => "Selected slots must be consecutive."
+                ]);
             }
         }
 
-        // Check if the robot is already scheduled for any of the selected slots on this date
-        $formattedDate = $year . '-' . $month . '-' . $day;
         $robotId = $validated['robot_id'];
+        $date = "$year-$month-$day";
+        $slotStart = $selectedSlots[0];
+        $slotEnd = $selectedSlots[count($selectedSlots)-1];
 
-        // Find any existing planning for this robot on this date that overlaps with selected slots
-        $existingRobotSchedules = VehiclePlanning::where('robot_id', $robotId)
-            ->where('date', $formattedDate)
-            ->where(function($query) use ($selectedSlots) {
-                $slotStart = min($selectedSlots);
-                $slotEnd = max($selectedSlots);
-
-                // Check for any overlap between existing and requested slots
-                // Overlap occurs when:
-                // - The existing schedule starts during our requested time frame, OR
-                // - The existing schedule ends during our requested time frame, OR
-                // - The existing schedule completely contains our requested time frame
-                $query->where(function($q) use ($slotStart, $slotEnd) {
-                    $q->whereBetween('slot_start', [$slotStart, $slotEnd])
-                      ->orWhereBetween('slot_end', [$slotStart, $slotEnd])
-                      ->orWhere(function($q2) use ($slotStart, $slotEnd) {
-                          $q2->where('slot_start', '<=', $slotStart)
-                             ->where('slot_end', '>=', $slotEnd);
-                      });
+        $conflictingSchedule = VehiclePlanning::where('robot_id', $robotId)
+            ->where('date', $date)
+            ->where(function($query) use ($slotStart, $slotEnd) {
+                $query->where(function($overlapQuery) use ($slotStart, $slotEnd) {
+                    $overlapQuery
+                        ->whereBetween('slot_start', [$slotStart, $slotEnd])
+                        ->orWhereBetween('slot_end', [$slotStart, $slotEnd])
+                        // Complete overlap
+                        ->orWhere(function($completeOverlapQuery) use ($slotStart, $slotEnd) {
+                            $completeOverlapQuery
+                                ->where('slot_start', '<=', $slotStart)
+                                ->where('slot_end', '>=', $slotEnd);
+                        });
                 });
             })
+            // TODO: try just using >= and <= query
             ->first();
 
-        if ($existingRobotSchedules) {
-            $robotName = Robot::findOrFail($robotId)->name;
-            $conflictSlots = "slots {$existingRobotSchedules->slot_start} to {$existingRobotSchedules->slot_end}";
-
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'robot_id' => "This robot is already scheduled for {$conflictSlots} on this date."
-                ]);
-        }
-
-        try {
-            // Create the vehicle planning entry
-            $planning = VehiclePlanning::create([
-                'vehicle_id' => $validated['vehicle_id'],
-                'module_id' => $validated['module_id'],
-                'robot_id' => $validated['robot_id'],
-                'date' => $formattedDate,
-                'slot_start' => $selectedSlots[0],
-                'slot_end' => $selectedSlots[count($selectedSlots) - 1]
+        if ($conflictingSchedule) {
+            return back()->withInput()->withErrors([
+                'robot_id' => "This robot is already scheduled for slots $conflictingSchedule->slot_start to $conflictingSchedule->slot_end on this date."
             ]);
-
-            return redirect()->route('calendar.show', [
-                'year' => $year,
-                'month' => $month,
-                'day' => $day
-            ])->with('success', 'Schedule created successfully');
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Check if it's a duplicate entry error
-            if ($e->errorInfo[1] === 1062) {
-                // Get module details for a more informative message
-                $module = Module::findOrFail($validated['module_id']);
-                $moduleType = ucfirst(str_replace('_', ' ', $module->type->value));
-
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'module_id' => "This vehicle already has a {$moduleType} module scheduled for assembly. Each vehicle can only have one of each module type."
-                    ]);
-            }
-
-            // If it's another database error, rethrow it
-            throw $e;
         }
+
+        VehiclePlanning::create([
+            'vehicle_id' => $validated['vehicle_id'],
+            'module_id' => $validated['module_id'],
+            'robot_id' => $validated['robot_id'],
+            'date' => $date,
+            'slot_start' => $selectedSlots[0],
+            'slot_end' => $slotEnd
+        ]);
+
+        return redirect()
+            ->route('calendar.show', compact('year', 'month', 'day'))
+            ->with('success', 'Schedule created successfully');
     }
 
 
@@ -336,17 +278,16 @@ class CalendarController extends Controller
      */
     public function show(string $year, string $month, string $day)
     {
-        // Validate the date
+        // ValiDATE the date...
         if (!checkdate((int)$month, (int)$day, (int)$year)) {
             abort(404);
         }
 
-        // Ensure month and day are two digits
         $month = str_pad($month, 2, '0', STR_PAD_LEFT);
         $day = str_pad($day, 2, '0', STR_PAD_LEFT);
 
         $vehiclePlanning = VehiclePlanning::where([
-            'date' => $year . '-' . $month . '-' . $day
+            'date' => "$year-$month-$day"
         ])->get();
 
         return view('calendar.show', compact(
@@ -385,7 +326,8 @@ class CalendarController extends Controller
 
         $schedule->delete();
 
-        return redirect()->route('calendar.show', [$year, $month, $day])
+        return redirect()
+            ->route('calendar.show', compact('year', 'month', 'day'))
             ->with('success', "Schedule was deleted successfully.");
     }
 }
