@@ -184,7 +184,23 @@ class CalendarController extends Controller
             }
         }
 
-        // If adding a wheel set, check compatibility with the chassis
+        // When adding a chassis module make sure it's the same vehicle type
+        if ($module->type === ModuleType::CHASSIS) {
+            $vehicle = Vehicle::findOrFail($validated['vehicle_id']);
+            $chassisModule = $module->chassisModule;
+
+            // Check if the chassis vehicle type matches the vehicle type
+            if ($chassisModule->vehicle_type !== $vehicle->type) {
+                $chassisType = snakeToSentenceCase($chassisModule->vehicle_type->value);
+                $vehicleType = snakeToSentenceCase($vehicle->type->value);
+
+                return back()->withInput()->withErrors([
+                    'module_id' => "This chassis is designed for vehicles with type '$chassisType'. You tried to apply it on a vehicle with type '$vehicleType'."
+                ]);
+            }
+        }
+
+        // When adding a wheel set, check compatibility with the chassis
         if ($module->type === ModuleType::WHEEL_SET) {
             // Find the chassis module
             $chassisPlanning = $existingPlannings->first(function($planning) {
@@ -276,8 +292,6 @@ class CalendarController extends Controller
             ]);
         }
 
-        // Create the vehicle planning entry - no try/catch needed as we've already checked
-        // for duplicate entries earlier in the function
         VehiclePlanning::create([
             'vehicle_id' => $validated['vehicle_id'],
             'module_id' => $validated['module_id'],
