@@ -32,16 +32,16 @@
 
                         <div class="flex flex-col gap-2 mb-6">
                             <h2 class="text-xl font-bold mt-2">Select a customer</h2>
-                            <select name="customer_id" id="customer_id" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent grow">
+                            <select name="user_id" id="user_id" class="p-3 px-4 rounded-sm cursor-pointer border border-gray-600 text-white font-bold bg-transparent grow">
                                 @foreach($customers as $customer)
-                                    <option value="{{ $customer->id }}" @selected(old('customer_id') === $customer->id)>
+                                    <option value="{{ $customer->id }}" @selected(old('user_id') === $customer->id)>
                                         {{ $customer->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <x-input-error class="mt-1" :messages="$errors->get('customer_id')" />
+                        <x-input-error class="mt-1" :messages="$errors->get('user_id')" />
                         <x-input-error class="mt-1" :messages="$errors->get('vehicle_type')" />
 
                         <div class="flex gap-2 ml-auto">

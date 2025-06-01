@@ -358,8 +358,8 @@ class CalendarController extends Controller
     {
         $date = $schedule->date;
         $year = $date->year;
-        $month = $date->month;
-        $day = $date->day;
+        $month = str_pad($date->month, 2, '0', STR_PAD_LEFT);
+        $day = str_pad($date->day, 2, '0', STR_PAD_LEFT);
 
         $schedule->delete();
 

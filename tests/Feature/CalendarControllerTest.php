@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Module;
+use App\Models\Modules\ChassisModule;
 use App\Models\Robot;
 use App\Models\User;
 use App\Models\Vehicle;
@@ -75,17 +76,6 @@ test('as admin, calendar.create shows form with valid date', function () {
     $response->assertViewIs('calendar.create');
     $response->assertViewHas(['robots', 'slots', 'vehicles', 'modules', 'year', 'month', 'day']);
 });
-test('as admin, calendar.store returns 404 for invalid date', function () {
-    $this->actingAs($this->users['admin']);
-
-    $response = $this->post(route('calendar.store', [
-        'year' => $this->year,
-        'month' => '13',
-        'day' => $this->day
-    ]));
-
-    $response->assertStatus(404);
-});
 test('as admin, calendar.store validates required fields', function () {
     $this->actingAs($this->users['admin']);
 
@@ -132,262 +122,187 @@ test('as admin, calendar.store prevents duplicate module for vehicle', function 
         'slot' => ['0' => 'true']
     ]);
 
-    $response->assertSessionHasErrors('module_id');
+    $response->assertSessionHasErrors(['module_id']);
     $this->assertEquals(1, VehiclePlanning::count());
 });
+test('as admin, calendar.store returns 404 for invalid date', function () {
+    $this->actingAs($this->users['admin']);
 
-//test('store enforces module order', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $robot = Robot::factory()->create();
-//    $robot->vehicleTypes()->attach(VehicleType::CAR);
-//
-//    $chassisModule = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 1
-//    ]);
-//
-//    $wheelSetModule = Module::factory()->create([
-//        'type' => ModuleType::WHEEL_SET,
-//        'assembly_time' => 1
-//    ]);
-//
-//    // Try to add wheel set before chassis
-//    $response = $this->post(route('calendar.store', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]), [
-//        'module_id' => $wheelSetModule->id,
-//        'robot_id' => $robot->id,
-//        'vehicle_id' => $vehicle->id,
-//        'slot' => ['0' => 'true']
-//    ]);
-//
-//    $response->assertSessionHasErrors('module_id');
-//    $this->assertEquals(0, VehiclePlanning::count());
-//});
+    $response = $this->post(route('calendar.store', [
+        'year' => $this->year,
+        'month' => '13',
+        'day' => $this->day
+    ]));
 
-//test('store validates robot compatibility with vehicle type', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $robot = Robot::factory()->create();
-//    // Robot doesn't support car type
-//    $robot->vehicleTypes()->attach(VehicleType::TRUCK);
-//
-//    $module = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 1
-//    ]);
-//
-//    $response = $this->post(route('calendar.store', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]), [
-//        'module_id' => $module->id,
-//        'robot_id' => $robot->id,
-//        'vehicle_id' => $vehicle->id,
-//        'slot' => ['0' => 'true']
-//    ]);
-//
-//    $response->assertSessionHasErrors('robot_id');
-//    $this->assertEquals(0, VehiclePlanning::count());
-//});
-//
-//test('store validates slot count matches module assembly time', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $robot = Robot::factory()->create();
-//    $robot->vehicleTypes()->attach(VehicleType::CAR);
-//
-//    $module = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 2 // Requires 2 slots
-//    ]);
-//
-//    $response = $this->post(route('calendar.store', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]), [
-//        'module_id' => $module->id,
-//        'robot_id' => $robot->id,
-//        'vehicle_id' => $vehicle->id,
-//        'slot' => ['0' => 'true'] // Only 1 slot selected
-//    ]);
-//
-//    $response->assertSessionHasErrors('slot');
-//    $this->assertEquals(0, VehiclePlanning::count());
-//});
-//
-//test('store validates slots are consecutive', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $robot = Robot::factory()->create();
-//    $robot->vehicleTypes()->attach(VehicleType::CAR);
-//
-//    $module = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 2
-//    ]);
-//
-//    $response = $this->post(route('calendar.store', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]), [
-//        'module_id' => $module->id,
-//        'robot_id' => $robot->id,
-//        'vehicle_id' => $vehicle->id,
-//        'slot' => ['0' => 'true', '2' => 'true'] // Not consecutive
-//    ]);
-//
-//    $response->assertSessionHasErrors('slot');
-//    $this->assertEquals(0, VehiclePlanning::count());
-//});
-//
-//test('store detects robot scheduling conflicts', function () {
-//    // Setup
-//    $vehicle1 = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $vehicle2 = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $robot = Robot::factory()->create();
-//    $robot->vehicleTypes()->attach(VehicleType::CAR);
-//
-//    $module1 = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 1
-//    ]);
-//
-//    $module2 = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 1
-//    ]);
-//
-//    // Create an existing schedule
-//    VehiclePlanning::create([
-//        'vehicle_id' => $vehicle1->id,
-//        'module_id' => $module1->id,
-//        'robot_id' => $robot->id,
-//        'date' => $this->date,
-//        'slot_start' => 0,
-//        'slot_end' => 0
-//    ]);
-//
-//    // Try to create a conflicting schedule
-//    $response = $this->post(route('calendar.store', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]), [
-//        'module_id' => $module2->id,
-//        'robot_id' => $robot->id,
-//        'vehicle_id' => $vehicle2->id,
-//        'slot' => ['0' => 'true'] // Same time slot
-//    ]);
-//
-//    $response->assertSessionHasErrors('robot_id');
-//    $this->assertEquals(1, VehiclePlanning::count());
-//});
-//
-//test('store creates planning successfully', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create(['type' => VehicleType::CAR]);
-//    $robot = Robot::factory()->create();
-//    $robot->vehicleTypes()->attach(VehicleType::CAR);
-//
-//    $module = Module::factory()->create([
-//        'type' => ModuleType::CHASSIS,
-//        'assembly_time' => 2
-//    ]);
-//
-//    $response = $this->post(route('calendar.store', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]), [
-//        'module_id' => $module->id,
-//        'robot_id' => $robot->id,
-//        'vehicle_id' => $vehicle->id,
-//        'slot' => ['0' => 'true', '1' => 'true'] // 2 consecutive slots
-//    ]);
-//
-//    $response->assertRedirect(route('calendar.show', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]));
-//    $response->assertSessionHas('success');
-//
-//    $this->assertEquals(1, VehiclePlanning::count());
-//    $planning = VehiclePlanning::first();
-//    $this->assertEquals($vehicle->id, $planning->vehicle_id);
-//    $this->assertEquals($module->id, $planning->module_id);
-//    $this->assertEquals($robot->id, $planning->robot_id);
-//    $this->assertEquals($this->date, $planning->date->format('Y-m-d'));
-//    $this->assertEquals(0, $planning->slot_start);
-//    $this->assertEquals(1, $planning->slot_end);
-//});
-//
-//test('show returns 404 for invalid date', function () {
-//    $response = $this->get(route('calendar.show', [
-//        'year' => $this->year,
-//        'month' => '13', // Invalid month
-//        'day' => $this->day
-//    ]));
-//
-//    $response->assertStatus(404);
-//});
-//
-//test('show displays vehicle planning for date', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create();
-//    $robot = Robot::factory()->create();
-//    $module = Module::factory()->create();
-//
-//    VehiclePlanning::create([
-//        'vehicle_id' => $vehicle->id,
-//        'module_id' => $module->id,
-//        'robot_id' => $robot->id,
-//        'date' => $this->date,
-//        'slot_start' => 0,
-//        'slot_end' => 1
-//    ]);
-//
-//    $response = $this->get(route('calendar.show', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]));
-//
-//    $response->assertStatus(200);
-//    $response->assertViewIs('calendar.show');
-//    $response->assertViewHas('vehiclePlanning');
-//    $this->assertEquals(1, $response->viewData('vehiclePlanning')->count());
-//});
-//
-//test('destroy deletes planning and redirects', function () {
-//    // Setup
-//    $vehicle = Vehicle::factory()->create();
-//    $robot = Robot::factory()->create();
-//    $module = Module::factory()->create();
-//
-//    $planning = VehiclePlanning::create([
-//        'vehicle_id' => $vehicle->id,
-//        'module_id' => $module->id,
-//        'robot_id' => $robot->id,
-//        'date' => $this->date,
-//        'slot_start' => 0,
-//        'slot_end' => 1
-//    ]);
-//
-//    $response = $this->delete(route('calendar.destroy', $planning));
-//
-//    $response->assertRedirect(route('calendar.show', [
-//        'year' => $this->year,
-//        'month' => $this->month,
-//        'day' => $this->day
-//    ]));
-//    $response->assertSessionHas('success');
-//    $this->assertEquals(0, VehiclePlanning::count());
-//});
+    $response->assertStatus(404);
+});
+test('as admin, calendar.store enforces module order', function () {
+    $this->actingAs($this->users['admin']);
+
+    $vehicle = Vehicle::factory()->create([
+        'user_id' => $this->users['admin']->id,
+        'type' => VehicleType::CAR
+    ]);
+    $robot = Robot::factory()->create();
+
+    $wheelSetModule = Module::factory()->create([
+        'type' => ModuleType::WHEEL_SET,
+        'assembly_time' => 1
+    ]);
+
+    // Try to add wheel set before chassis
+    $this->post(route('calendar.store', [
+        'year' => $this->year,
+        'month' => $this->month,
+        'day' => $this->day
+    ]), [
+        'module_id' => $wheelSetModule->id,
+        'robot_id' => $robot->id,
+        'vehicle_id' => $vehicle->id,
+        'slot' => ['1' => 'true']
+    ]);
+
+    $this->assertEquals(0, VehiclePlanning::count());
+});
+test('as admin, calendar.store validates robot compatibility with vehicle type', function () {
+    $this->actingAs($this->users['admin']);
+
+    $vehicle = Vehicle::factory()->create([
+        'user_id' => $this->users['admin']->id,
+        'type' => VehicleType::CAR
+    ]);
+    // Robot doesn't support car type
+    $robot = Robot::factory()->create();
+    $module = Module::factory()->create([
+        'type' => ModuleType::CHASSIS,
+        'assembly_time' => 1
+    ]);
+
+    $this->post(route('calendar.store', [
+        'year' => $this->year,
+        'month' => $this->month,
+        'day' => $this->day
+    ]), [
+        'module_id' => $module->id,
+        'robot_id' => $robot->id,
+        'vehicle_id' => $vehicle->id,
+        'slot' => ['1' => 'true']
+    ]);
+
+    $this->assertEquals(0, VehiclePlanning::count());
+});
+test('as admin, calendar.store creates planning successfully', function () {
+    $this->actingAs($this->users['admin']);
+
+    $vehicle = Vehicle::factory()->create([
+        'user_id' => $this->users['admin']->id,
+        'type' => VehicleType::CAR
+    ]);
+    $robot = Robot::factory()->create();
+    $robot->vehicleTypes()->create([
+        'vehicle_type' => VehicleType::CAR
+    ]);
+
+    $chassisModule = ChassisModule::factory()->create([
+        'vehicle_type' => VehicleType::CAR
+    ]);
+    $chassisModule->module->assembly_time = 2;
+    $chassisModule->module->save();
+
+    $response = $this->post(route('calendar.store', [
+        'year' => $this->year,
+        'month' => $this->month,
+        'day' => $this->day
+    ]), [
+        'module_id' => $chassisModule->module->id,
+        'robot_id' => $robot->id,
+        'vehicle_id' => $vehicle->id,
+        'slot' => ['1' => 'true', '2' => 'true']
+    ]);
+
+    $response->assertRedirect(route('calendar.show', [
+        'year' => $this->year,
+        'month' => $this->month,
+        'day' => $this->day
+    ]));
+    $response->assertSessionHas('success');
+
+    $this->assertEquals(1, VehiclePlanning::count());
+    $planning = VehiclePlanning::first();
+    $this->assertEquals($vehicle->id, $planning->vehicle_id);
+    $this->assertEquals($chassisModule->module->id, $planning->module_id);
+    $this->assertEquals($robot->id, $planning->robot_id);
+    $this->assertEquals($this->date, $planning->date->format('Y-m-d'));
+    $this->assertEquals(1, $planning->slot_start);
+    $this->assertEquals(2, $planning->slot_end);
+});
+test('as admin, calendar.store creates planning unsuccessfully, due to incorrect timeslot count', function () {
+    $this->actingAs($this->users['admin']);
+
+    $vehicle = Vehicle::factory()->create([
+        'user_id' => $this->users['admin']->id,
+        'type' => VehicleType::CAR
+    ]);
+    $robot = Robot::factory()->create();
+    $robot->vehicleTypes()->create([
+        'vehicle_type' => VehicleType::CAR
+    ]);
+
+    $chassisModule = ChassisModule::factory()->create([
+        'vehicle_type' => VehicleType::CAR
+    ]);
+    $chassisModule->module->assembly_time = 1;
+    $chassisModule->module->save();
+
+    $response = $this->post(route('calendar.store', [
+        'year' => $this->year,
+        'month' => $this->month,
+        'day' => $this->day
+    ]), [
+        'module_id' => $chassisModule->module->id,
+        'robot_id' => $robot->id,
+        'vehicle_id' => $vehicle->id,
+        'slot' => ['1' => 'true', '2' => 'true']
+    ]);
+
+    $response->assertSessionHasErrors('slot');
+    $this->assertEquals(0, VehiclePlanning::count());
+});
+test('as admin, calendar.destroy deletes planning and redirects', function () {
+    $this->actingAs($this->users['admin']);
+
+    $vehicle = Vehicle::factory()->create([
+        'user_id' => $this->users['admin']->id,
+        'type' => VehicleType::CAR
+    ]);
+    $robot = Robot::factory()->create();
+    $robot->vehicleTypes()->create([
+        'vehicle_type' => VehicleType::CAR
+    ]);
+
+    $chassisModule = ChassisModule::factory()->create([
+        'vehicle_type' => VehicleType::CAR
+    ]);
+    $chassisModule->module->assembly_time = 1;
+    $chassisModule->module->save();
+
+    $schedule = VehiclePlanning::create([
+        'vehicle_id' => $vehicle->id,
+        'module_id' => $chassisModule->module->id,
+        'robot_id' => $robot->id,
+        'date' => $this->date,
+        'slot_start' => 1,
+        'slot_end' => 2
+    ]);
+
+    $this->assertEquals(1, VehiclePlanning::count());
+    $response = $this->delete(route('calendar.destroy', [$schedule]));
+
+    $response->assertRedirect(route('calendar.show', [
+        'year' => $this->year,
+        'month' => $this->month,
+        'day' => $this->day
+    ]));
+    $response->assertSessionHas('success');
+    $this->assertEquals(0, VehiclePlanning::count());
+});

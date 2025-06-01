@@ -35,12 +35,12 @@ class VehicleController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|min:4|max:255',
-            'customer_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
             'type' => 'required|string|in:' . implode(',', VehicleType::values())
         ]);
 
         Vehicle::create([
-            'user_id' => $validated['customer_id'],
+            'user_id' => $validated['user_id'],
             'name' => $validated['name'],
             'type' => $validated['type']
         ]);
