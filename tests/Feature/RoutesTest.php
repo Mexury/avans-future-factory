@@ -284,8 +284,6 @@ test('as mechanic, I can create a robot', function () {
         'engine_type' => ['electric' => 'true'],
     ]));
 
-    dump($response);
-
     $response->assertRedirect(route('robots.index'));
     $response->assertSessionHas('success');
 
