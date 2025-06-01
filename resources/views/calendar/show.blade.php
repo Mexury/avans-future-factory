@@ -32,7 +32,7 @@
                                         {{ $schedule->slot_start }} - {{ $schedule->slot_end }}
                                     @endif
                                 </x-table.data>
-                                <x-table.data>{{ $schedule->date }}</x-table.data>
+                                <x-table.data>{{ $schedule->date->format('Y-m-d') }}</x-table.data>
                                 <x-table.data>
                                     <form action="{{ route('calendar.destroy', [$schedule]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf

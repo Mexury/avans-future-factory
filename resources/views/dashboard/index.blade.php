@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Modules') }}
+            {{ __('Dashboard') }}
         </h2>
     </x-slot>
 
@@ -12,27 +12,32 @@
                     <x-table>
                         <x-slot:thead>
                             <x-table.head>#</x-table.head>
-                            <x-table.head>Image</x-table.head>
                             <x-table.head>Name</x-table.head>
                             <x-table.head>Type</x-table.head>
-                            <x-table.head>Assembly time</x-table.head>
-                            <x-table.head>Assembly cost</x-table.head>
+                            <x-table.head>Ordered by</x-table.head>
+                            <x-table.head>Total cost</x-table.head>
+                            <x-table.head>Completion date</x-table.head>
+                            <x-table.head>Status</x-table.head>
                             <x-table.head>Actions</x-table.head>
                         </x-slot:thead>
-                        @forelse($modules as $key => $module)
+                        @forelse($vehicles as $key => $vehicle)
                             <x-table.row>
-                                <x-table.data>{{ $key + 1 }}</x-table.data>
+                                <x-table.data>{{ $key + 1}}</x-table.data>
+                                <x-table.data>{{ $vehicle->name }}</x-table.data>
+                                <x-table.data>{{ snakeToSentenceCase($vehicle->type->value) }}</x-table.data>
+                                <x-table.data>{{ $vehicle->user->name }}</x-table.data>
                                 <x-table.data>
-                                    <img class="h-24 w-24 object-fit bg-white rounded-sm border border-gray-600" src="/storage/{{ $module->image }}" alt="{{ $module->name }}">
+                                    &euro;{{ number_format(array_sum($vehicle->planning->pluck('module')->pluck('cost')->toArray()), 2) }}
                                 </x-table.data>
-                                <x-table.data>{{ $module->name }}</x-table.data>
-                                <x-table.data>{{ snakeToSentenceCase($module->type->value) }}</x-table.data>
                                 <x-table.data>
-                                    {{ $module->assembly_time * 2 }}h ({{ $module->assembly_time }} {{ $module->assembly_time == 1 ? 'timeslot' : 'timeslots' }})
+                                    @php $lastPlanning = $vehicle->planning->last(); @endphp
+                                    {{ $lastPlanning->date->setHour(9 + 2 * $lastPlanning->slot_end)->format('Y-m-d H:i') }}
                                 </x-table.data>
-                                <x-table.data>&euro;{{ number_format($module->cost, 2) }}</x-table.data>
                                 <x-table.data>
-                                    <form action="{{ route('modules.destroy', [$module]) }}" method="POST" class="flex gap-2 justify-end">
+                                    <x-status :status="$vehicle->status()"/>
+                                </x-table.data>
+                                <x-table.data>
+                                    <form action="{{ route('vehicles.destroy', [$vehicle]) }}" method="POST" class="flex gap-2 justify-end">
                                         @csrf
                                         @method('DELETE')
                                         <x-button variant="actions:delete" />
@@ -48,18 +53,10 @@
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
                             </x-table.row>
                         @endforelse
                     </x-table>
-
-                    <div class="flex mt-4 gap-2 justify-end">
-                        @foreach($moduleTypes as $moduleType)
-                            <x-link variant="primary" class="flex gap-2 text-sm grow" href="{{ route($moduleType . '.create') }}">
-                                <x-tabler-plus class="h-4 w-4"/>
-                                {{ strtolower(snakeToSentenceCase($moduleType)) }} module
-                            </x-link>
-                        @endforeach
-                    </div>
                 </div>
             </div>
         </div>

@@ -54,24 +54,18 @@ class Vehicle extends Model
     public function status(): VehicleStatus {
         $plannings = $this->planning;
 
-        // If there are no plannings, return "Idle"
         if ($plannings->isEmpty()) {
-            return new VehicleStatus(VehicleStatusType::DANGER,  'Awaiting assembly');
+            return new VehicleStatus(VehicleStatusType::DANGER, 'Not scheduled');
         }
 
-        $completedCount = $plannings->filter(function ($planning) {
-            return $planning->isCompleted();
-        })->count();
-
+        $completedCount = $plannings->filter(fn ($planning) => $planning->isCompleted())->count();
         $totalCount = $plannings->count();
 
-        // If all plannings are completed, return "Completed"
-        if ($completedCount === $totalCount) {
-            return new VehicleStatus(VehicleStatusType::SUCCESS, 'Completed');
+        if (($totalCount >= 4) && ($completedCount === $totalCount)) {
+            return new VehicleStatus(VehicleStatusType::SUCCESS, "Completed $completedCount/$totalCount");
         }
 
-        // If some plannings are completed, return "Assembly, x/y"
-        return new VehicleStatus(VehicleStatusType::WARNING, "Assembly, {$completedCount}/{$totalCount}");
+        return new VehicleStatus(VehicleStatusType::WARNING, "Assembly $completedCount/$totalCount");
     }
 
     protected $casts = [

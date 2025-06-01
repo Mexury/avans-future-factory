@@ -15,6 +15,8 @@
                             <x-table.head>Name</x-table.head>
                             <x-table.head>Type</x-table.head>
                             <x-table.head>Ordered by</x-table.head>
+                            <x-table.head>Total cost</x-table.head>
+                            <x-table.head>Completion date</x-table.head>
                             <x-table.head>Status</x-table.head>
                             <x-table.head>Actions</x-table.head>
                         </x-slot:thead>
@@ -24,6 +26,13 @@
                                 <x-table.data>{{ $vehicle->name }}</x-table.data>
                                 <x-table.data>{{ snakeToSentenceCase($vehicle->type->value) }}</x-table.data>
                                 <x-table.data>{{ $vehicle->user->name }}</x-table.data>
+                                <x-table.data>
+                                    &euro;{{ number_format(array_sum($vehicle->planning->pluck('module')->pluck('cost')->toArray()), 2) }}
+                                </x-table.data>
+                                <x-table.data>
+                                    @php $lastPlanning = $vehicle->planning->last(); @endphp
+                                    {{ $lastPlanning->date->setHour(9 + 2 * $lastPlanning->slot_end)->format('Y-m-d H:i') }}
+                                </x-table.data>
                                 <x-table.data>
                                     <x-status :status="$vehicle->status()"/>
                                 </x-table.data>
@@ -38,6 +47,8 @@
                         @empty
                             <x-table.row>
                                 <x-table.data>Empty table</x-table.data>
+                                <x-table.data></x-table.data>
+                                <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
                                 <x-table.data></x-table.data>
