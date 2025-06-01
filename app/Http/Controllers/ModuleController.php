@@ -77,11 +77,12 @@ class ModuleController extends Controller
     public function destroy(Module $module)
     {
         $moduleName = $module->name;
-        $module->chassisModule?->delete();
-        $module->engineModule?->delete();
-        $module->seatingModule?->delete();
-        $module->steeringWheelModule?->delete();
-        $module->wheelSetModule?->delete();
+        $module->chassisModule()->delete();
+        $module->engineModule()->delete();
+        $module->seatingModule()->delete();
+        $module->steeringWheelModule()->delete();
+        $module->wheelSetModule()->delete();
+        $module->planning()->delete();
         $module->delete();
 
         return redirect()->route('modules.index')
