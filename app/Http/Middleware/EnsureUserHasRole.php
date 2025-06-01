@@ -15,7 +15,10 @@ class EnsureUserHasRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!in_array($request->user()->role, $roles)) {
+        $role = $request->user()->role;
+        $value = gettype($role) === 'string' ? $role : $role->value;
+
+        if (!in_array($value, $roles)) {
             abort(403, 'Unauthorized.');
         }
 

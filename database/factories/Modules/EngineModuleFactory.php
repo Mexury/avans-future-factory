@@ -2,11 +2,14 @@
 
 namespace Database\Factories\Modules;
 
-use App\Models\Modules\WheelSetModule;
+use App\EngineType;
+use App\Models\Module;
+use App\Models\Modules\EngineModule;
+use App\ModuleType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<WheelSetModule>
+ * @extends Factory<EngineModule>
  */
 class EngineModuleFactory extends Factory
 {
@@ -17,8 +20,13 @@ class EngineModuleFactory extends Factory
      */
     public function definition(): array
     {
+        $module = Module::factory()->create([
+            'type' => ModuleType::ENGINE
+        ]);
         return [
-            //
+            'module_id' => $module->id,
+            'type' => $this->faker->randomElement(EngineType::values()),
+            'horse_power' => $this->faker->numberBetween(10, 50)
         ];
     }
 }
