@@ -31,7 +31,7 @@
                                 </x-table.data>
                                 <x-table.data>
                                     @php $lastPlanning = $vehicle->planning->last(); @endphp
-                                    {{ $lastPlanning->date->setHour(9 + 2 * $lastPlanning->slot_end)->format('Y-m-d H:i') }}
+                                    {{ $lastPlanning?->date->setHour(9 + 2 * $lastPlanning->slot_end)->format('Y-m-d H:i') }}
                                 </x-table.data>
                                 <x-table.data>
                                     <x-status :status="$vehicle->status()"/>
